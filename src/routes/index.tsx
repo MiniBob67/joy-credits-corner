@@ -297,7 +297,7 @@ function SendModal({ onClose }: { onClose: () => void }) {
         <div className="flex items-center justify-between px-5 pb-3 pt-4">
           <div className="flex items-center gap-2">
             <CoinIcon size={20} className="text-foreground" />
-            <span className="text-[17px] font-semibold">Send zł</span>
+            <span className="text-[17px] font-semibold">Send Robux</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-[15px] font-semibold">
@@ -439,7 +439,7 @@ function SendModal({ onClose }: { onClose: () => void }) {
               NEXT
             </button>
             <p className="mt-3 text-center text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              zł are sent instantly with no fees
+              Robux are sent instantly with no fees
             </p>
           </div>
         )}
@@ -448,7 +448,7 @@ function SendModal({ onClose }: { onClose: () => void }) {
           <div className="flex flex-col items-center px-6 pb-6 pt-8 text-center">
             <CoinIcon size={44} className="text-foreground" />
             <p className="mt-4 text-[19px] font-bold">
-              Sent {numeric.toLocaleString("en-US").replace(/,/g, " ")} zł to{" "}
+              Sent {numeric.toLocaleString("en-US").replace(/,/g, " ")} Robux to{" "}
               @{friend.name}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
