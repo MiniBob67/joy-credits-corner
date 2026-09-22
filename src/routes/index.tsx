@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { searchRobloxUsers, type RobloxUser } from "@/lib/roblox.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -48,16 +49,6 @@ const PACKAGE_ROWS: PackageRow[] = [
   { amount: "80", price: "5,99" },
 ];
 
-const FRIENDS = [
-  { name: "PixelPiper", handle: "@PixelPiper", color: "#c9762e" },
-  { name: "BlockyBella", handle: "@BlockyBella", color: "#3c6ec9" },
-  { name: "CubeCarver", handle: "@CubeCarver", color: "#3f9d63" },
-  { name: "NovaNomad", handle: "@NovaNomad", color: "#8a5bc9" },
-  { name: "TurboTophat", handle: "@TurboTophat", color: "#c94f6d" },
-  { name: "GlitchGnome", handle: "@GlitchGnome", color: "#2f9ea8" },
-  { name: "SparkSlugger", handle: "@SparkSlugger", color: "#b08d2f" },
-  { name: "VoxVoyager", handle: "@VoxVoyager", color: "#5b6ce0" },
-];
 
 const AMOUNT_CHIPS = [25, 50, 100, 200];
 
@@ -164,7 +155,7 @@ function Index() {
           <CloseIcon size={18} />
         </button>
         <p className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-[15px] font-semibold text-header-foreground">
-          Balance: 5 Credits
+          Balance: 5 zł
         </p>
       </header>
 
@@ -192,7 +183,7 @@ function Index() {
         <h1 className="relative mx-auto mt-16 max-w-[760px] px-6 text-center text-[44px] font-extrabold leading-[1.15] tracking-tight md:text-[52px]">
           Get up to 25%
           <br />
-          more Credits
+          more zł
         </h1>
 
         {/* Content column */}
@@ -232,7 +223,7 @@ function Index() {
 
           {/* Packages */}
           <section className="mt-12">
-            <h2 className="text-[22px] font-bold">Credit packages</h2>
+            <h2 className="text-[22px] font-bold">Packages</h2>
             <div className="mt-4 rounded-2xl bg-card px-7 py-5">
               {PACKAGE_ROWS.map((row) => (
                 <PackageLine key={row.amount} row={row} onBuy={() => setToast("Demo store — purchases are disabled.")} />
@@ -278,7 +269,7 @@ function PackageLine({ row, onBuy }: { row: PackageRow; onBuy: () => void }) {
         onClick={onBuy}
         className="h-[42px] w-[210px] rounded-lg bg-btn-muted text-[13px] text-foreground/90 transition-colors hover:bg-btn-muted-hover"
       >
-        {row.price} cr
+        {row.price} zł
       </button>
     </div>
   );
@@ -289,14 +280,27 @@ function PackageLine({ row, onBuy }: { row: PackageRow; onBuy: () => void }) {
 function SendModal({ onClose }: { onClose: () => void }) {
   const [step, setStep] = useState<"friends" | "amount" | "done">("friends");
   const [query, setQuery] = useState("");
-  const [friend, setFriend] = useState<(typeof FRIENDS)[number] | null>(null);
+  const [friend, setFriend] = useState<RobloxUser | null>(null);
   const [amount, setAmount] = useState("");
+  const [search, setSearch] = useState<
+    { status: "idle" } | { status: "loading" } | { status: "error" } | { status: "done"; user: RobloxUser | null }
+  >({ status: "idle" });
 
-  const results = useMemo(
-    () =>
-      FRIENDS.filter((f) => f.name.toLowerCase().includes(query.trim().toLowerCase())),
-    [query]
-  );
+  // Debounced lookup of a real Roblox account by username
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) {
+      setSearch({ status: "idle" });
+      return;
+    }
+    setSearch({ status: "loading" });
+    const t = setTimeout(() => {
+      searchRobloxUsers({ data: { query: q } })
+        .then((res) => setSearch({ status: "done", user: res.user }))
+        .catch(() => setSearch({ status: "error" }));
+    }, 350);
+    return () => clearTimeout(t);
+  }, [query]);
 
   const numeric = parseInt(amount.replace(/\D/g, ""), 10) || 0;
 
@@ -312,7 +316,7 @@ function SendModal({ onClose }: { onClose: () => void }) {
         <div className="flex items-center justify-between px-5 pb-3 pt-4">
           <div className="flex items-center gap-2">
             <CoinIcon size={20} className="text-foreground" />
-            <span className="text-[17px] font-semibold">Send Credits</span>
+            <span className="text-[17px] font-semibold">Send zł</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-[15px] font-semibold">
@@ -338,37 +342,65 @@ function SendModal({ onClose }: { onClose: () => void }) {
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search"
+                placeholder="Search Roblox username"
                 className="w-full bg-transparent text-[15px] outline-none placeholder:text-muted-foreground"
               />
             </div>
             <p className="mt-4 px-1 text-[15px] font-bold">
-              My friends ({results.length})
+              {search.status === "done" && search.user ? "Roblox user" : "Roblox search"}
             </p>
             <div className="mt-2 max-h-[340px] space-y-1 overflow-y-auto pr-1">
-              {results.map((f) => (
+              {search.status === "idle" && (
+                <p className="px-2 py-6 text-center text-sm text-muted-foreground">
+                  Type a Roblox username to find their account.
+                </p>
+              )}
+              {search.status === "loading" && (
+                <p className="px-2 py-6 text-center text-sm text-muted-foreground">
+                  Searching Roblox…
+                </p>
+              )}
+              {search.status === "error" && (
+                <p className="px-2 py-6 text-center text-sm text-muted-foreground">
+                  Could not reach Roblox. Please try again.
+                </p>
+              )}
+              {search.status === "done" && !search.user && (
+                <p className="px-2 py-6 text-center text-sm text-muted-foreground">
+                  No Roblox user named “{query.trim()}”
+                </p>
+              )}
+              {search.status === "done" && search.user && (
                 <button
-                  key={f.handle}
                   type="button"
                   onClick={() => {
-                    setFriend(f);
+                    setFriend(search.user);
                     setStep("amount");
                   }}
                   className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left transition-colors hover:bg-btn-muted"
                 >
-                  <span
-                    className="flex h-10 w-10 items-center justify-center rounded-full text-[15px] font-bold text-white"
-                    style={{ backgroundColor: f.color }}
-                  >
-                    {f.name[0]}
+                  {search.user.imageUrl ? (
+                    <img
+                      src={search.user.imageUrl}
+                      alt=""
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-btn-muted text-[15px] font-bold text-foreground">
+                      {search.user.name[0]}
+                    </span>
+                  )}
+                  <span className="min-w-0">
+                    <span className="block truncate text-[15px] font-semibold">
+                      {search.user.name}
+                    </span>
+                    {search.user.displayName !== search.user.name && (
+                      <span className="block truncate text-[12px] text-muted-foreground">
+                        {search.user.displayName}
+                      </span>
+                    )}
                   </span>
-                  <span className="text-[15px] font-semibold">{f.name}</span>
                 </button>
-              ))}
-              {results.length === 0 && (
-                <p className="px-2 py-6 text-center text-sm text-muted-foreground">
-                  No friends found
-                </p>
               )}
             </div>
           </div>
@@ -377,12 +409,17 @@ function SendModal({ onClose }: { onClose: () => void }) {
         {step === "amount" && friend && (
           <div className="px-6 pb-5 pt-2">
             <div className="flex flex-col items-center">
-              <span
-                className="flex h-[72px] w-[72px] items-center justify-center rounded-full text-[26px] font-bold text-white"
-                style={{ backgroundColor: friend.color }}
-              >
-                {friend.name[0]}
-              </span>
+              {friend.imageUrl ? (
+                <img
+                  src={friend.imageUrl}
+                  alt=""
+                  className="h-[72px] w-[72px] rounded-full object-cover"
+                />
+              ) : (
+                <span className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-btn-muted text-[26px] font-bold text-foreground">
+                  {friend.name[0]}
+                </span>
+              )}
               <p className="mt-3 text-[15px] font-bold uppercase tracking-wide">
                 {friend.name}
               </p>
@@ -421,7 +458,7 @@ function SendModal({ onClose }: { onClose: () => void }) {
               NEXT
             </button>
             <p className="mt-3 text-center text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Credits are sent instantly with no fees
+              zł are sent instantly with no fees
             </p>
           </div>
         )}
@@ -430,8 +467,8 @@ function SendModal({ onClose }: { onClose: () => void }) {
           <div className="flex flex-col items-center px-6 pb-6 pt-8 text-center">
             <CoinIcon size={44} className="text-foreground" />
             <p className="mt-4 text-[19px] font-bold">
-              Sent {numeric.toLocaleString("en-US").replace(/,/g, " ")} Credits to{" "}
-              {friend.handle}
+              Sent {numeric.toLocaleString("en-US").replace(/,/g, " ")} zł to{" "}
+              @{friend.name}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
               Demo only — nothing real was sent or charged.
