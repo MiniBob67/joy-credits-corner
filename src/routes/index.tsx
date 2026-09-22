@@ -55,6 +55,8 @@ const AMOUNT_CHIPS = [25, 50, 100, 200];
 /* ---------------------------------- icons --------------------------------- */
 
 function CoinIcon({ size = 20, className = "" }: { size?: number; className?: string }) {
+  // Simple original circular currency symbol (a coin with a hexagon core) —
+  // deliberately NOT the Roblox hexagon-R logo.
   return (
     <svg
       width={size}
@@ -64,16 +66,10 @@ function CoinIcon({ size = 20, className = "" }: { size?: number; className?: st
       className={className}
       aria-hidden="true"
     >
+      <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="2" />
       <path
-        d="M12 2.5 20 7v10l-8 4.5L4 17V7l8-4.5Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M12 7.5 16 9.8v4.4L12 16.5 8 14.2V9.8l4-2.3Z"
+        d="M12 7.6 15.8 9.8v4.4L12 16.4 8.2 14.2V9.8L12 7.6Z"
         fill="currentColor"
-        opacity="0.9"
       />
     </svg>
   );
@@ -115,20 +111,6 @@ function SearchIcon({ size = 16, className = "" }: { size?: number; className?: 
   );
 }
 
-function GemIcon({ size = 22 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M7 3h10l4 6-9 12L3 9l4-6Z"
-        fill="#ffd66e"
-        stroke="#b8860b"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-      />
-      <path d="M3 9h18M12 21 8.5 9l3.5-6 3.5 6L12 21Z" stroke="#b8860b" strokeWidth="1" />
-    </svg>
-  );
-}
 
 /* --------------------------------- screen --------------------------------- */
 
@@ -155,7 +137,7 @@ function Index() {
           <CloseIcon size={18} />
         </button>
         <p className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-[15px] font-semibold text-header-foreground">
-          Balance: 5 zł
+          Balance: 5 Robux
         </p>
       </header>
 
@@ -183,7 +165,7 @@ function Index() {
         <h1 className="relative mx-auto mt-16 max-w-[760px] px-6 text-center text-[44px] font-extrabold leading-[1.15] tracking-tight md:text-[52px]">
           Get up to 25%
           <br />
-          more zł
+          more Robux
         </h1>
 
         {/* Content column */}
@@ -198,9 +180,6 @@ function Index() {
                 <div className="absolute right-40 bottom-2 h-10 w-10 -rotate-6 rounded-lg bg-white/10" />
                 <div className="absolute right-6 bottom-4 h-6 w-6 rotate-45 bg-white/10" />
                 <div className="absolute left-8 top-1/2 flex -translate-y-1/2 items-center gap-4">
-                  <div className="flex h-[74px] w-[74px] items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-orange-600 shadow-lg">
-                    <GemIcon size={40} />
-                  </div>
                   <div>
                     <p className="flex items-center gap-1.5 text-[15px] font-semibold text-white">
                       [🏆] Pixel Quest
@@ -251,7 +230,9 @@ function PackageLine({ row, onBuy }: { row: PackageRow; onBuy: () => void }) {
     <div className="flex items-center justify-between py-3.5">
       <div className="flex items-center gap-3">
         <CoinIcon size={22} className="text-foreground" />
-        <span className="text-[21px] font-bold tracking-wide">{row.amount}</span>
+        <span className="text-[21px] font-bold tracking-wide">
+          {row.amount} <span className="text-[16px] font-semibold">Robux</span>
+        </span>
         {row.old && (
           <span className="flex items-center gap-1 text-[21px] font-bold tracking-wide text-muted-foreground line-through decoration-2">
             <CoinIcon size={20} />
@@ -316,7 +297,7 @@ function SendModal({ onClose }: { onClose: () => void }) {
         <div className="flex items-center justify-between px-5 pb-3 pt-4">
           <div className="flex items-center gap-2">
             <CoinIcon size={20} className="text-foreground" />
-            <span className="text-[17px] font-semibold">Send zł</span>
+            <span className="text-[17px] font-semibold">Send Robux</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-[15px] font-semibold">
@@ -458,7 +439,7 @@ function SendModal({ onClose }: { onClose: () => void }) {
               NEXT
             </button>
             <p className="mt-3 text-center text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              zł are sent instantly with no fees
+              Robux are sent instantly with no fees
             </p>
           </div>
         )}
@@ -467,7 +448,7 @@ function SendModal({ onClose }: { onClose: () => void }) {
           <div className="flex flex-col items-center px-6 pb-6 pt-8 text-center">
             <CoinIcon size={44} className="text-foreground" />
             <p className="mt-4 text-[19px] font-bold">
-              Sent {numeric.toLocaleString("en-US").replace(/,/g, " ")} zł to{" "}
+              Sent {numeric.toLocaleString("en-US").replace(/,/g, " ")} Robux to{" "}
               @{friend.name}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
