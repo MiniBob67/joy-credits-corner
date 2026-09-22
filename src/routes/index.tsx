@@ -137,7 +137,7 @@ function Index() {
           <CloseIcon size={18} />
         </button>
         <p className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-[15px] font-semibold text-header-foreground">
-          Balance: 5 zł
+          Balance: 5 Robux
         </p>
       </header>
 
@@ -165,7 +165,7 @@ function Index() {
         <h1 className="relative mx-auto mt-16 max-w-[760px] px-6 text-center text-[44px] font-extrabold leading-[1.15] tracking-tight md:text-[52px]">
           Get up to 25%
           <br />
-          more zł
+          more Robux
         </h1>
 
         {/* Content column */}
@@ -180,9 +180,6 @@ function Index() {
                 <div className="absolute right-40 bottom-2 h-10 w-10 -rotate-6 rounded-lg bg-white/10" />
                 <div className="absolute right-6 bottom-4 h-6 w-6 rotate-45 bg-white/10" />
                 <div className="absolute left-8 top-1/2 flex -translate-y-1/2 items-center gap-4">
-                  <div className="flex h-[74px] w-[74px] items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-orange-600 shadow-lg">
-                    <GemIcon size={40} />
-                  </div>
                   <div>
                     <p className="flex items-center gap-1.5 text-[15px] font-semibold text-white">
                       [🏆] Pixel Quest
@@ -233,7 +230,9 @@ function PackageLine({ row, onBuy }: { row: PackageRow; onBuy: () => void }) {
     <div className="flex items-center justify-between py-3.5">
       <div className="flex items-center gap-3">
         <CoinIcon size={22} className="text-foreground" />
-        <span className="text-[21px] font-bold tracking-wide">{row.amount}</span>
+        <span className="text-[21px] font-bold tracking-wide">
+          {row.amount} <span className="text-[16px] font-semibold">Robux</span>
+        </span>
         {row.old && (
           <span className="flex items-center gap-1 text-[21px] font-bold tracking-wide text-muted-foreground line-through decoration-2">
             <CoinIcon size={20} />
