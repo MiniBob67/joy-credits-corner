@@ -79,9 +79,9 @@ function CoinIcon({ size = 20, className = "" }: { size?: number; className?: st
   );
 }
 
-function SendIcon({ size = 13 }: { size?: number }) {
+function SendIcon({ size = 13, className = "" }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
       <path
         d="M12 19V5m0 0-5 5m5-5 5 5"
         stroke="currentColor"
@@ -106,9 +106,9 @@ function CloseIcon({ size = 20 }: { size?: number }) {
   );
 }
 
-function SearchIcon({ size = 16 }: { size?: number }) {
+function SearchIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
       <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="2" />
       <path d="m16 16 4.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
