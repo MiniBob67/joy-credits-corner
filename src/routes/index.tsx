@@ -5,17 +5,17 @@ import { searchRobloxUsers, type RobloxUser } from "@/lib/roblox.functions";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Credit Store — Demo" },
+      { title: "Robux Packages — Demo" },
       {
         name: "description",
         content:
-          "Fictional virtual-credit store demo. Buy demo credit packages and send credits to friends. No real currency or payments.",
+          "Demo store with Robux packages. Send Robux to friends. Prices in PLN. No real Robux or payments.",
       },
-      { property: "og:title", content: "Credit Store — Demo" },
+      { property: "og:title", content: "Robux Packages — Demo" },
       {
         property: "og:description",
         content:
-          "Fictional virtual-credit store demo. Buy demo credit packages and send credits to friends.",
+          "Demo store with Robux packages. Send Robux to friends. Prices in PLN. No real Robux or payments.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -137,7 +137,7 @@ function Index() {
           <CloseIcon size={18} />
         </button>
         <p className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-[15px] font-semibold text-header-foreground">
-          Balance: 5 Robux
+          Balance: 231M Robux
         </p>
       </header>
 
@@ -149,7 +149,7 @@ function Index() {
         <div className="mx-auto flex w-full max-w-[1280px] justify-end px-6 pt-5">
           <div className="flex items-center gap-2 rounded-full bg-surface-2 py-1.5 pl-4 pr-1.5">
             <CoinIcon size={20} className="text-foreground" />
-            <span className="pr-1 text-[19px] font-bold leading-none">5</span>
+            <span className="pr-1 text-[19px] font-bold leading-none">231M</span>
             <button
               type="button"
               onClick={() => setSendOpen(true)}
@@ -182,12 +182,11 @@ function Index() {
                 <div className="absolute left-8 top-1/2 flex -translate-y-1/2 items-center gap-4">
                   <div>
                     <p className="flex items-center gap-1.5 text-[15px] font-semibold text-white">
-                      [🏆] Pixel Quest
+                      Bonus Robux package
                       <span className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-white/50 text-[10px] leading-none text-white/80">
                         i
                       </span>
                     </p>
-                    <p className="mt-0.5 text-[13px] text-white/85">RPG Bundle!</p>
                   </div>
                 </div>
               </div>
@@ -202,7 +201,7 @@ function Index() {
 
           {/* Packages */}
           <section className="mt-12">
-            <h2 className="text-[22px] font-bold">Packages</h2>
+            <h2 className="text-[22px] font-bold">Robux packages</h2>
             <div className="mt-4 rounded-2xl bg-card px-7 py-5">
               {PACKAGE_ROWS.map((row) => (
                 <PackageLine key={row.amount} row={row} onBuy={() => setToast("Demo store — purchases are disabled.")} />
@@ -302,7 +301,7 @@ function SendModal({ onClose }: { onClose: () => void }) {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-[15px] font-semibold">
               <CoinIcon size={16} />
-              5
+              231M
             </span>
             <button
               type="button"
