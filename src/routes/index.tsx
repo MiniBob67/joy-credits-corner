@@ -55,6 +55,8 @@ const AMOUNT_CHIPS = [25, 50, 100, 200];
 /* ---------------------------------- icons --------------------------------- */
 
 function CoinIcon({ size = 20, className = "" }: { size?: number; className?: string }) {
+  // Simple original circular currency symbol (a coin with a hexagon core) —
+  // deliberately NOT the Roblox hexagon-R logo.
   return (
     <svg
       width={size}
@@ -64,16 +66,10 @@ function CoinIcon({ size = 20, className = "" }: { size?: number; className?: st
       className={className}
       aria-hidden="true"
     >
+      <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="2" />
       <path
-        d="M12 2.5 20 7v10l-8 4.5L4 17V7l8-4.5Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M12 7.5 16 9.8v4.4L12 16.5 8 14.2V9.8l4-2.3Z"
+        d="M12 7.6 15.8 9.8v4.4L12 16.4 8.2 14.2V9.8L12 7.6Z"
         fill="currentColor"
-        opacity="0.9"
       />
     </svg>
   );
@@ -115,20 +111,6 @@ function SearchIcon({ size = 16, className = "" }: { size?: number; className?: 
   );
 }
 
-function GemIcon({ size = 22 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M7 3h10l4 6-9 12L3 9l4-6Z"
-        fill="#ffd66e"
-        stroke="#b8860b"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-      />
-      <path d="M3 9h18M12 21 8.5 9l3.5-6 3.5 6L12 21Z" stroke="#b8860b" strokeWidth="1" />
-    </svg>
-  );
-}
 
 /* --------------------------------- screen --------------------------------- */
 
