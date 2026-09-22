@@ -431,7 +431,7 @@ function SendModal({ onClose }: { onClose: () => void }) {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
                   placeholder="0"
-                  aria-label="Amount of credits to send"
+                  aria-label="Amount to send"
                   className="w-[200px] bg-transparent text-center text-[38px] font-extrabold tracking-wide outline-none placeholder:text-muted-foreground/50"
                 />
               </div>
