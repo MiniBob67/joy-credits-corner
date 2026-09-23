@@ -39,7 +39,11 @@ jobs:
           mkdir -p pages
           cp -R .output/public/. pages/
           touch pages/.nojekyll
-          cp pages/index.html pages/404.html
+
+      - name: Inspect Pages output
+        run: |
+          echo "=== Pages output ==="
+          find pages -maxdepth 4 -type f | sort
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -47,7 +51,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: pages
+          path: ./pages
 
   deploy:
     needs: build
