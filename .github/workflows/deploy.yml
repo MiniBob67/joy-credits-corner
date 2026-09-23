@@ -38,6 +38,34 @@ jobs:
         run: |
           mkdir -p pages
           cp -R .output/public/. pages/
+
+          JS_FILE=$(find pages/assets -maxdepth 1 -type f -name 'index-*.js' | head -n 1)
+          CSS_FILE=$(find pages/assets -maxdepth 1 -type f -name '*.css' | head -n 1)
+
+          if [ -z "$JS_FILE" ] || [ -z "$CSS_FILE" ]; then
+            echo "Could not find built JS/CSS assets"
+            exit 1
+          fi
+
+          JS_NAME=$(basename "$JS_FILE")
+          CSS_NAME=$(basename "$CSS_FILE")
+
+          cat > pages/index.html <<EOF
+          <!doctype html>
+          <html lang="en">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+              <title>Robux Packages — Demo</title>
+              <link rel="stylesheet" href="/joy-credits-corner/assets/$CSS_NAME" />
+            </head>
+            <body>
+              <div id="root"></div>
+              <script type="module" src="/joy-credits-corner/assets/$JS_NAME"></script>
+            </body>
+          </html>
+          EOF
+
           touch pages/.nojekyll
 
       - name: Inspect Pages output
