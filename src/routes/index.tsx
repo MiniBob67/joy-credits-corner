@@ -49,35 +49,55 @@ const PACKAGE_ROWS: PackageRow[] = [
   { amount: "80", price: "5,99" },
 ];
 
-
 const AMOUNT_CHIPS = [25, 50, 100, 200];
 
 /* ---------------------------------- icons --------------------------------- */
 
-function CoinIcon({ size = 20, className = "" }: { size?: number; className?: string }) {
-  // Simple original circular currency symbol (a coin with a hexagon core) —
-  // deliberately NOT the Roblox hexagon-R logo.
+function CoinIcon({
+  size = 20,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) {
+  // Stylized Robux-like icon.
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        d="M5 2.8 19.2 6.6a1.7 1.7 0 0 1 1.2 2.1l-3.8 14.2a1.7 1.7 0 0 1-2.1 1.2L.3 20.3a1.7 1.7 0 0 1-1.2-2.1L2.9 4a1.7 1.7 0 0 1 2.1-1.2Z"
+        transform="translate(2 -1)"
+      />
+      <path
+        d="M8.1 7.9 16.2 10a1.1 1.1 0 0 1 .8 1.4l-2.1 8.1a1.1 1.1 0 0 1-1.4.8l-8.1-2.1a1.1 1.1 0 0 1-.8-1.4l2.1-8.1a1.1 1.1 0 0 1 1.4-.8Z"
+        fill="var(--background)"
+      />
+    </svg>
+  );
+}
+
+function SendIcon({
+  size = 13,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) {
   return (
     <svg
       width={size}
       height={size}
       viewBox="0 0 24 24"
       fill="none"
-      className={className}
       aria-hidden="true"
+      className={className}
     >
-      <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="2" />
-      <path
-        d="M12 7.6 15.8 9.8v4.4L12 16.4 8.2 14.2V9.8L12 7.6Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-function SendIcon({ size = 13, className = "" }: { size?: number; className?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
       <path
         d="M12 19V5m0 0-5 5m5-5 5 5"
         stroke="currentColor"
@@ -91,7 +111,13 @@ function SendIcon({ size = 13, className = "" }: { size?: number; className?: st
 
 function CloseIcon({ size = 20 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M6 6l12 12M18 6 6 18"
         stroke="currentColor"
@@ -102,15 +128,38 @@ function CloseIcon({ size = 20 }: { size?: number }) {
   );
 }
 
-function SearchIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
+function SearchIcon({
+  size = 16,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
-      <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="2" />
-      <path d="m16 16 4.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className={className}
+    >
+      <circle
+        cx="11"
+        cy="11"
+        r="6.5"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <path
+        d="m16 16 4.5 4.5"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
-
 
 /* --------------------------------- screen --------------------------------- */
 
@@ -136,6 +185,7 @@ function Index() {
         >
           <CloseIcon size={18} />
         </button>
+
         <p className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-[15px] font-semibold text-header-foreground">
           Balance: 231M Robux
         </p>
@@ -143,13 +193,20 @@ function Index() {
 
       <main className="relative pb-24 pt-10">
         {/* faint wireframe backdrop behind the hero */}
-        <div className="hero-grid pointer-events-none absolute inset-x-0 top-10 h-[340px]" aria-hidden="true" />
+        <div
+          className="hero-grid pointer-events-none absolute inset-x-0 top-10 h-[340px]"
+          aria-hidden="true"
+        />
 
-        {/* Balance + Send (top-right of the content container) */}
+        {/* Balance + Send */}
         <div className="mx-auto flex w-full max-w-[1280px] justify-end px-6 pt-5">
           <div className="flex items-center gap-2 rounded-full bg-surface-2 py-1.5 pl-4 pr-1.5">
             <CoinIcon size={20} className="text-foreground" />
-            <span className="pr-1 text-[19px] font-bold leading-none">231M</span>
+
+            <span className="pr-1 text-[19px] font-bold leading-none">
+              231M
+            </span>
+
             <button
               type="button"
               onClick={() => setSendOpen(true)}
@@ -172,17 +229,22 @@ function Index() {
         <div className="mx-auto mt-16 w-full max-w-[760px] px-6">
           {/* Bonus item */}
           <section>
-            <h2 className="text-[22px] font-bold">Bonus item we picked for you</h2>
+            <h2 className="text-[22px] font-bold">
+              Bonus item we picked for you
+            </h2>
+
             <div className="mt-4 rounded-2xl bg-card">
-              {/* banner (demo artwork, CSS-drawn) */}
+              {/* banner */}
               <div className="relative h-[132px] overflow-hidden rounded-t-2xl banner-art">
                 <div className="absolute right-16 top-6 h-16 w-16 rotate-12 rounded-xl bg-white/10" />
                 <div className="absolute right-40 bottom-2 h-10 w-10 -rotate-6 rounded-lg bg-white/10" />
                 <div className="absolute right-6 bottom-4 h-6 w-6 rotate-45 bg-white/10" />
+
                 <div className="absolute left-8 top-1/2 flex -translate-y-1/2 items-center gap-4">
                   <div>
                     <p className="flex items-center gap-1.5 text-[15px] font-semibold text-white">
                       Bonus Robux package
+
                       <span className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-white/50 text-[10px] leading-none text-white/80">
                         i
                       </span>
@@ -190,10 +252,17 @@ function Index() {
                   </div>
                 </div>
               </div>
+
               {/* rows */}
               <div className="px-7 pb-5 pt-5">
                 {BONUS_ROWS.map((row) => (
-                  <PackageLine key={row.amount} row={row} onBuy={() => setToast("Demo store — purchases are disabled.")} />
+                  <PackageLine
+                    key={row.amount}
+                    row={row}
+                    onBuy={() =>
+                      setToast("Demo store — purchases are disabled.")
+                    }
+                  />
                 ))}
               </div>
             </div>
@@ -202,9 +271,16 @@ function Index() {
           {/* Packages */}
           <section className="mt-12">
             <h2 className="text-[22px] font-bold">Robux packages</h2>
+
             <div className="mt-4 rounded-2xl bg-card px-7 py-5">
               {PACKAGE_ROWS.map((row) => (
-                <PackageLine key={row.amount} row={row} onBuy={() => setToast("Demo store — purchases are disabled.")} />
+                <PackageLine
+                  key={row.amount}
+                  row={row}
+                  onBuy={() =>
+                    setToast("Demo store — purchases are disabled.")
+                  }
+                />
               ))}
             </div>
           </section>
@@ -224,26 +300,37 @@ function Index() {
 
 /* ------------------------------ package row ------------------------------- */
 
-function PackageLine({ row, onBuy }: { row: PackageRow; onBuy: () => void }) {
+function PackageLine({
+  row,
+  onBuy,
+}: {
+  row: PackageRow;
+  onBuy: () => void;
+}) {
   return (
     <div className="flex items-center justify-between py-3.5">
       <div className="flex items-center gap-3">
         <CoinIcon size={22} className="text-foreground" />
+
         <span className="text-[21px] font-bold tracking-wide">
-          {row.amount} <span className="text-[16px] font-semibold">Robux</span>
+          {row.amount}{" "}
+          <span className="text-[16px] font-semibold">Robux</span>
         </span>
+
         {row.old && (
           <span className="flex items-center gap-1 text-[21px] font-bold tracking-wide text-muted-foreground line-through decoration-2">
             <CoinIcon size={20} />
             {row.old}
           </span>
         )}
+
         {row.more && (
           <span className="ml-2 rounded-full bg-btn-muted px-3 py-1 text-[11px] font-medium text-muted-foreground">
             {row.more}
           </span>
         )}
       </div>
+
       <button
         type="button"
         onClick={onBuy}
@@ -262,23 +349,31 @@ function SendModal({ onClose }: { onClose: () => void }) {
   const [query, setQuery] = useState("");
   const [friend, setFriend] = useState<RobloxUser | null>(null);
   const [amount, setAmount] = useState("");
+
   const [search, setSearch] = useState<
-    { status: "idle" } | { status: "loading" } | { status: "error" } | { status: "done"; user: RobloxUser | null }
+    | { status: "idle" }
+    | { status: "loading" }
+    | { status: "error" }
+    | { status: "done"; user: RobloxUser | null }
   >({ status: "idle" });
 
   // Debounced lookup of a real Roblox account by username
   useEffect(() => {
     const q = query.trim();
+
     if (!q) {
       setSearch({ status: "idle" });
       return;
     }
+
     setSearch({ status: "loading" });
+
     const t = setTimeout(() => {
       searchRobloxUsers({ data: { query: q } })
         .then((res) => setSearch({ status: "done", user: res.user }))
         .catch(() => setSearch({ status: "error" }));
     }, 350);
+
     return () => clearTimeout(t);
   }, [query]);
 
@@ -298,11 +393,13 @@ function SendModal({ onClose }: { onClose: () => void }) {
             <CoinIcon size={20} className="text-foreground" />
             <span className="text-[17px] font-semibold">Send Robux</span>
           </div>
+
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-[15px] font-semibold">
               <CoinIcon size={16} />
               231M
             </span>
+
             <button
               type="button"
               aria-label="Close"
@@ -318,6 +415,7 @@ function SendModal({ onClose }: { onClose: () => void }) {
           <div className="px-4 pb-5">
             <div className="flex h-11 items-center gap-2.5 rounded-full border border-input-focus bg-input px-4 focus-within:border-primary">
               <SearchIcon className="shrink-0 text-muted-foreground" />
+
               <input
                 autoFocus
                 value={query}
@@ -326,30 +424,38 @@ function SendModal({ onClose }: { onClose: () => void }) {
                 className="w-full bg-transparent text-[15px] outline-none placeholder:text-muted-foreground"
               />
             </div>
+
             <p className="mt-4 px-1 text-[15px] font-bold">
-              {search.status === "done" && search.user ? "Roblox user" : "Roblox search"}
+              {search.status === "done" && search.user
+                ? "Roblox user"
+                : "Roblox search"}
             </p>
+
             <div className="mt-2 max-h-[340px] space-y-1 overflow-y-auto pr-1">
               {search.status === "idle" && (
                 <p className="px-2 py-6 text-center text-sm text-muted-foreground">
                   Type a Roblox username to find their account.
                 </p>
               )}
+
               {search.status === "loading" && (
                 <p className="px-2 py-6 text-center text-sm text-muted-foreground">
                   Searching Roblox…
                 </p>
               )}
+
               {search.status === "error" && (
                 <p className="px-2 py-6 text-center text-sm text-muted-foreground">
                   Could not reach Roblox. Please try again.
                 </p>
               )}
+
               {search.status === "done" && !search.user && (
                 <p className="px-2 py-6 text-center text-sm text-muted-foreground">
                   No Roblox user named “{query.trim()}”
                 </p>
               )}
+
               {search.status === "done" && search.user && (
                 <button
                   type="button"
@@ -370,10 +476,12 @@ function SendModal({ onClose }: { onClose: () => void }) {
                       {search.user.name[0]}
                     </span>
                   )}
+
                   <span className="min-w-0">
                     <span className="block truncate text-[15px] font-semibold">
                       {search.user.name}
                     </span>
+
                     {search.user.displayName !== search.user.name && (
                       <span className="block truncate text-[12px] text-muted-foreground">
                         {search.user.displayName}
@@ -400,21 +508,27 @@ function SendModal({ onClose }: { onClose: () => void }) {
                   {friend.name[0]}
                 </span>
               )}
+
               <p className="mt-3 text-[15px] font-bold uppercase tracking-wide">
                 {friend.name}
               </p>
+
               <div className="mt-3 flex items-center gap-2">
                 <CoinIcon size={30} className="text-foreground" />
+
                 <input
                   autoFocus
                   inputMode="numeric"
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
+                  onChange={(e) =>
+                    setAmount(e.target.value.replace(/\D/g, ""))
+                  }
                   placeholder="0"
                   aria-label="Amount to send"
                   className="w-[200px] bg-transparent text-center text-[38px] font-extrabold tracking-wide outline-none placeholder:text-muted-foreground/50"
                 />
               </div>
+
               <div className="mt-4 flex items-center gap-2">
                 {AMOUNT_CHIPS.map((c) => (
                   <button
@@ -429,6 +543,7 @@ function SendModal({ onClose }: { onClose: () => void }) {
                 ))}
               </div>
             </div>
+
             <button
               type="button"
               disabled={numeric <= 0}
@@ -437,6 +552,7 @@ function SendModal({ onClose }: { onClose: () => void }) {
             >
               NEXT
             </button>
+
             <p className="mt-3 text-center text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               Robux are sent instantly with no fees
             </p>
@@ -446,13 +562,16 @@ function SendModal({ onClose }: { onClose: () => void }) {
         {step === "done" && friend && (
           <div className="flex flex-col items-center px-6 pb-6 pt-8 text-center">
             <CoinIcon size={44} className="text-foreground" />
+
             <p className="mt-4 text-[19px] font-bold">
-              Sent {numeric.toLocaleString("en-US").replace(/,/g, " ")} Robux to{" "}
-              @{friend.name}
+              Sent {numeric.toLocaleString("en-US").replace(/,/g, " ")} Robux
+              to @{friend.name}
             </p>
+
             <p className="mt-2 text-sm text-muted-foreground">
               Demo only — nothing real was sent or charged.
             </p>
+
             <button
               type="button"
               onClick={onClose}
