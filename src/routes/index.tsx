@@ -95,16 +95,17 @@ function Home() {
                 }`}
                 onClick={() => selectPackage(item.robux)}
               >
-                <div className="robux-icon">R$</div>
+                <div className="package-left">
+                  <div className="robux-icon">R$</div>
 
-                <div className="package-info">
-                  <strong>{item.robux}</strong>
+                  <div className="package-info">
+                    <strong>{item.robux}</strong>
 
-                  <span className="old-value">
-                    {item.old}
-                  </span>
-
-                  <span className="robux-label">Robux</span>
+                    <div className="package-sub">
+                      <span className="old-value">{item.old}</span>
+                      <span className="robux-label">Robux</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="price">{item.price}</div>
@@ -136,9 +137,7 @@ function Home() {
                     <strong>{item.robux}</strong>
 
                     <div className="normal-sub">
-                      <span className="old-value">
-                        {item.old}
-                      </span>
+                      <span className="old-value">{item.old}</span>
                       <span>Robux</span>
                     </div>
                   </div>
@@ -198,6 +197,7 @@ function Home() {
                 />
 
                 <button
+                  className="find-button"
                   onClick={findAvatar}
                   disabled={loadingAvatar}
                 >
@@ -303,7 +303,7 @@ function Home() {
           align-items: center;
           font-size: 14px;
           font-weight: 900;
-          box-shadow: 0 5px 20px rgba(0, 162, 255, .25);
+          box-shadow: 0 5px 20px rgba(0, 162, 255, 0.25);
         }
 
         .brand-text {
@@ -334,7 +334,7 @@ function Home() {
           display: flex;
           align-items: center;
           gap: 8px;
-          transition: .15s;
+          transition: 0.15s;
         }
 
         .send-button:hover {
@@ -347,7 +347,7 @@ function Home() {
         }
 
         .content {
-          width: min(930px, calc(100% - 28px));
+          width: min(760px, calc(100% - 28px));
           margin: 0 auto;
           padding-top: 55px;
         }
@@ -360,7 +360,7 @@ function Home() {
         .hero h1 {
           margin: 0;
           font-size: clamp(25px, 4vw, 34px);
-          letter-spacing: -.7px;
+          letter-spacing: -0.7px;
         }
 
         .hero p {
@@ -369,19 +369,20 @@ function Home() {
           margin-top: 9px;
         }
 
-        .package-section {
-          width: 100%;
-        }
+        /*
+          PAKIETY PIONOWO
+        */
 
         .cards {
-          display: grid;
-          grid-template-columns: repeat(5, 1fr);
+          display: flex;
+          flex-direction: column;
           gap: 12px;
         }
 
         .package-card {
-          min-height: 205px;
-          padding: 22px 13px 17px;
+          width: 100%;
+          min-height: 92px;
+          padding: 16px 20px;
           border-radius: 12px;
           border: 1px solid #30353d;
           background: linear-gradient(
@@ -393,27 +394,35 @@ function Home() {
           cursor: pointer;
           position: relative;
           display: flex;
-          flex-direction: column;
           align-items: center;
           justify-content: space-between;
-          transition: .16s;
+          transition: 0.16s;
+          text-align: left;
         }
 
         .package-card:hover {
           border-color: #4c5661;
-          transform: translateY(-3px);
+          transform: translateY(-2px);
           background: #1d2228;
         }
 
         .package-card.active {
           border-color: #00a2ff;
-          box-shadow: 0 0 0 1px #00a2ff,
-            0 10px 35px rgba(0, 162, 255, .13);
+          box-shadow:
+            0 0 0 1px #00a2ff,
+            0 10px 35px rgba(0, 162, 255, 0.13);
+        }
+
+        .package-left {
+          display: flex;
+          align-items: center;
+          gap: 15px;
         }
 
         .robux-icon {
-          width: 43px;
-          height: 43px;
+          width: 48px;
+          height: 48px;
+          flex-shrink: 0;
           border-radius: 10px;
           background: #00a2ff;
           display: flex;
@@ -422,19 +431,24 @@ function Home() {
           color: white;
           font-size: 12px;
           font-weight: 900;
-          box-shadow: 0 6px 20px rgba(0, 162, 255, .2);
+          box-shadow: 0 6px 20px rgba(0, 162, 255, 0.2);
         }
 
         .package-info {
           display: flex;
           flex-direction: column;
-          align-items: center;
-          gap: 3px;
+          gap: 5px;
         }
 
         .package-info strong {
-          font-size: 24px;
-          letter-spacing: -.4px;
+          font-size: 22px;
+          letter-spacing: -0.4px;
+        }
+
+        .package-sub {
+          display: flex;
+          align-items: center;
+          gap: 7px;
         }
 
         .old-value {
@@ -449,15 +463,17 @@ function Home() {
         }
 
         .price {
-          font-size: 13px;
+          font-size: 14px;
           font-weight: 800;
           color: #e8eaed;
+          margin-right: 22px;
         }
 
         .selected-check {
           position: absolute;
-          top: 9px;
-          right: 9px;
+          top: 50%;
+          right: 10px;
+          transform: translateY(-50%);
           width: 21px;
           height: 21px;
           border-radius: 50%;
@@ -477,6 +493,10 @@ function Home() {
           margin: 0 0 13px;
         }
 
+        .normal-card-row {
+          width: 100%;
+        }
+
         .normal-card {
           width: 100%;
           min-height: 82px;
@@ -489,7 +509,7 @@ function Home() {
           align-items: center;
           justify-content: space-between;
           cursor: pointer;
-          transition: .15s;
+          transition: 0.15s;
         }
 
         .normal-card:hover {
@@ -565,7 +585,7 @@ function Home() {
           position: fixed;
           inset: 0;
           z-index: 100;
-          background: rgba(0, 0, 0, .68);
+          background: rgba(0, 0, 0, 0.68);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -579,7 +599,7 @@ function Home() {
           border-radius: 14px;
           border: 1px solid #353b43;
           background: #191c20;
-          box-shadow: 0 30px 100px rgba(0,0,0,.6);
+          box-shadow: 0 30px 100px rgba(0, 0, 0, 0.6);
           position: relative;
         }
 
@@ -676,7 +696,7 @@ function Home() {
           padding: 0 13px;
         }
 
-        .findButton {
+        .find-button {
           margin: 7px;
           border: 0;
           border-radius: 6px;
@@ -686,6 +706,11 @@ function Home() {
           cursor: pointer;
           font-size: 11px;
           font-weight: 700;
+        }
+
+        .find-button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
 
         .user-preview {
@@ -739,7 +764,7 @@ function Home() {
         }
 
         .confirm:disabled {
-          opacity: .35;
+          opacity: 0.35;
           cursor: not-allowed;
         }
 
@@ -766,13 +791,7 @@ function Home() {
           z-index: 20;
         }
 
-        @media (max-width: 800px) {
-          .cards {
-            grid-template-columns: repeat(2, 1fr);
-          }
-        }
-
-        @media (max-width: 480px) {
+        @media (max-width: 600px) {
           .topbar {
             padding: 0 15px;
           }
@@ -781,21 +800,54 @@ function Home() {
             padding-top: 35px;
           }
 
-          .cards {
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-          }
-
           .package-card {
-            min-height: 180px;
+            min-height: 82px;
+            padding: 13px 14px;
           }
 
           .package-info strong {
-            font-size: 21px;
+            font-size: 19px;
+          }
+
+          .robux-icon {
+            width: 43px;
+            height: 43px;
+          }
+
+          .price {
+            font-size: 12px;
+            margin-right: 18px;
           }
 
           .send-panel {
             padding: 24px 19px;
+          }
+        }
+
+        @media (max-width: 420px) {
+          .brand-text span {
+            display: none;
+          }
+
+          .package-card {
+            padding: 12px;
+          }
+
+          .package-left {
+            gap: 10px;
+          }
+
+          .price {
+            font-size: 11px;
+          }
+
+          .selection-bar {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          .selection-bar button {
+            width: 100%;
           }
         }
       `}</style>
