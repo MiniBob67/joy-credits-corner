@@ -1,6 +1,11 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
-export default function Home() {
+export const Route = createFileRoute("/")({
+  component: Home,
+});
+
+function Home() {
   const [username, setUsername] = useState("");
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
@@ -8,7 +13,9 @@ export default function Home() {
   const [success, setSuccess] = useState(false);
 
   const startTransfer = () => {
-    if (!username.trim() || !amount || Number(amount) <= 0) return;
+    if (!username.trim() || !amount || Number(amount) <= 0) {
+      return;
+    }
 
     setLoading(true);
     setProgress(0);
@@ -36,12 +43,12 @@ export default function Home() {
     progress < 25
       ? "Connecting to transfer server..."
       : progress < 45
-      ? "Checking recipient..."
-      : progress < 65
-      ? "Verifying transfer..."
-      : progress < 85
-      ? "Processing transaction..."
-      : "Finalizing transfer...";
+        ? "Checking recipient..."
+        : progress < 65
+          ? "Verifying transfer..."
+          : progress < 85
+            ? "Processing transaction..."
+            : "Finalizing transfer...";
 
   return (
     <main
@@ -59,10 +66,10 @@ export default function Home() {
         style={{
           width: "100%",
           maxWidth: "430px",
-          background: "#fff",
+          background: "#ffffff",
           borderRadius: "14px",
           padding: "32px",
-          boxShadow: "0 8px 30px rgba(0,0,0,0.15)",
+          boxShadow: "0 8px 30px rgba(0, 0, 0, 0.15)",
         }}
       >
         {!loading && !success && (
@@ -124,6 +131,7 @@ export default function Home() {
 
             <input
               type="number"
+              min="1"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter amount"
@@ -143,10 +151,10 @@ export default function Home() {
               style={{
                 width: "100%",
                 padding: "14px",
-                border: 0,
+                border: "none",
                 borderRadius: "8px",
                 background: "#00a2ff",
-                color: "#fff",
+                color: "#ffffff",
                 fontSize: "17px",
                 fontWeight: "bold",
                 cursor: "pointer",
@@ -195,7 +203,14 @@ export default function Home() {
               />
             </div>
 
-            <p style={{ color: "#999" }}>{progress}%</p>
+            <p
+              style={{
+                color: "#999",
+                marginTop: "8px",
+              }}
+            >
+              {progress}%
+            </p>
           </div>
         )}
 
@@ -207,7 +222,7 @@ export default function Home() {
                 height: "70px",
                 borderRadius: "50%",
                 background: "#22c55e",
-                color: "#fff",
+                color: "#ffffff",
                 fontSize: "42px",
                 lineHeight: "70px",
                 margin: "0 auto 20px",
@@ -232,7 +247,9 @@ export default function Home() {
               Sent to @{username}
             </p>
 
-            <p>Your transaction has been completed successfully.</p>
+            <p>
+              Your transaction has been completed successfully.
+            </p>
 
             <p
               style={{
