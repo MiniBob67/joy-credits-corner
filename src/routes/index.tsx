@@ -17,6 +17,8 @@ const NORMAL_PACKAGES = [
   { robux: "1,500", old: "1,200", price: "79,99 zł" },
 ];
 
+const ALL_PACKAGES = [...PROMO_PACKAGES, ...NORMAL_PACKAGES];
+
 const ROBUX_ICON =
   "https://images.rbxcdn.com/60bedb6518a319544c9445c519ba8d0e-robux_130x130.svg";
 
@@ -114,7 +116,10 @@ function Home() {
   }, [username]);
 
   function openSend() {
-    if (!selected) return;
+    // Jeśli nie wybrano paczki, automatycznie wybierz pierwszą.
+    if (!selected) {
+      setSelected(ALL_PACKAGES[0]);
+    }
 
     setSent(false);
     setSendOpen(true);
@@ -126,7 +131,7 @@ function Home() {
   }
 
   function confirmSend() {
-    if (!selected || !foundUsername) return;
+    if (!selected || !foundUsername || !avatar) return;
 
     setSent(true);
   }
@@ -222,10 +227,16 @@ function Home() {
           font-size: 14px;
           font-weight: 700;
           cursor: pointer;
+          transition: 0.15s ease;
         }
 
         .send-top:hover {
           background: #303030;
+          transform: translateY(-1px);
+        }
+
+        .send-top:active {
+          transform: translateY(0);
         }
 
         .content {
@@ -276,9 +287,9 @@ function Home() {
           padding: 15px 19px;
           cursor: pointer;
           transition:
-            border-color .15s ease,
-            box-shadow .15s ease,
-            transform .15s ease;
+            border-color 0.15s ease,
+            box-shadow 0.15s ease,
+            transform 0.15s ease;
         }
 
         .card:hover {
@@ -726,16 +737,21 @@ function Home() {
         </section>
 
         <section>
-          <h2 className="section-title">Robux packages</h2>
+          <h2 className="section-title">
+            Robux packages
+          </h2>
 
           <div className="cards">
             {PROMO_PACKAGES.map((pkg) => {
-              const isSelected = selected?.robux === pkg.robux;
+              const isSelected =
+                selected?.robux === pkg.robux;
 
               return (
                 <div
                   key={pkg.robux}
-                  className={`card ${isSelected ? "selected" : ""}`}
+                  className={`card ${
+                    isSelected ? "selected" : ""
+                  }`}
                   onClick={() => setSelected(pkg)}
                 >
                   <div className="icon-box">
@@ -745,6 +761,7 @@ function Home() {
                   <div className="package-info">
                     <div className="package-amount">
                       <span>{pkg.robux}</span>
+
                       <span className="package-old">
                         {pkg.old}
                       </span>
@@ -771,16 +788,21 @@ function Home() {
         </section>
 
         <section className="normal-section">
-          <h2 className="section-title">More packages</h2>
+          <h2 className="section-title">
+            More packages
+          </h2>
 
           <div className="cards">
             {NORMAL_PACKAGES.map((pkg) => {
-              const isSelected = selected?.robux === pkg.robux;
+              const isSelected =
+                selected?.robux === pkg.robux;
 
               return (
                 <div
                   key={pkg.robux}
-                  className={`card ${isSelected ? "selected" : ""}`}
+                  className={`card ${
+                    isSelected ? "selected" : ""
+                  }`}
                   onClick={() => setSelected(pkg)}
                 >
                   <div className="icon-box">
@@ -790,6 +812,7 @@ function Home() {
                   <div className="package-info">
                     <div className="package-amount">
                       <span>{pkg.robux}</span>
+
                       <span className="package-old">
                         {pkg.old}
                       </span>
@@ -888,9 +911,7 @@ function Home() {
                   <div className="search-status">
                     {searching
                       ? "Finding user..."
-                      : username.trim() && !foundUsername
-                        ? " "
-                        : ""}
+                      : ""}
                   </div>
 
                   {foundUsername && avatar && (
@@ -924,7 +945,11 @@ function Home() {
                   <div className="modal-footer">
                     <button
                       className="confirm-button"
-                      disabled={!foundUsername || !avatar}
+                      disabled={
+                        !foundUsername ||
+                        !avatar ||
+                        searching
+                      }
                       onClick={confirmSend}
                     >
                       Send
@@ -942,7 +967,9 @@ function Home() {
                     ✓
                   </div>
 
-                  <h2>Send preview created</h2>
+                  <h2>
+                    Send preview created
+                  </h2>
 
                   <p>
                     {selected.robux} Robux package
