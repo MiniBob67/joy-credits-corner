@@ -28,10 +28,10 @@ type Package = {
   price: string;
 };
 
-function RobuxIcon({ small = false }: { small?: boolean }) {
+function RobuxIcon() {
   return (
     <img
-      className={`robux-icon ${small ? "small" : ""}`}
+      className="robux-icon"
       src={ROBUX_ICON}
       alt=""
       draggable={false}
@@ -40,7 +40,9 @@ function RobuxIcon({ small = false }: { small?: boolean }) {
 }
 
 function Home() {
-  const [selected, setSelected] = useState<Package | null>(null);
+  // Od razu wybieramy pierwszą paczkę.
+  // Dzięki temu Send nie zależy od asynchronicznego setState.
+  const [selected, setSelected] = useState<Package>(ALL_PACKAGES[0]);
 
   const [sendOpen, setSendOpen] = useState(false);
   const [username, setUsername] = useState("");
@@ -116,22 +118,27 @@ function Home() {
   }, [username]);
 
   function openSend() {
-    // Jeśli nie wybrano paczki, automatycznie wybierz pierwszą.
-    if (!selected) {
-      setSelected(ALL_PACKAGES[0]);
-    }
-
     setSent(false);
+    setUsername("");
+    setFoundUsername("");
+    setAvatar("");
+    setSearching(false);
     setSendOpen(true);
   }
 
   function closeSend() {
     setSendOpen(false);
     setSent(false);
+    setUsername("");
+    setFoundUsername("");
+    setAvatar("");
+    setSearching(false);
   }
 
   function confirmSend() {
-    if (!selected || !foundUsername || !avatar) return;
+    if (!foundUsername || !avatar || searching) {
+      return;
+    }
 
     setSent(true);
   }
@@ -188,33 +195,11 @@ function Home() {
           border-bottom: 1px solid #e5e5e5;
           display: flex;
           align-items: center;
-          justify-content: space-between;
+          justify-content: flex-end;
           padding: 0 34px;
           position: sticky;
           top: 0;
           z-index: 20;
-        }
-
-        .brand {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          font-size: 20px;
-          font-weight: 800;
-          letter-spacing: -0.5px;
-        }
-
-        .brand-icon {
-          width: 31px;
-          height: 31px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .brand-icon .robux-icon {
-          width: 30px;
-          height: 30px;
         }
 
         .send-top {
@@ -320,11 +305,6 @@ function Home() {
           height: 43px;
           object-fit: contain;
           display: block;
-        }
-
-        .robux-icon.small {
-          width: 29px;
-          height: 29px;
         }
 
         .package-info {
@@ -461,7 +441,7 @@ function Home() {
           align-items: center;
           justify-content: center;
           padding: 20px;
-          z-index: 100;
+          z-index: 1000;
           backdrop-filter: blur(3px);
         }
 
@@ -717,15 +697,11 @@ function Home() {
       `}</style>
 
       <header className="topbar">
-        <div className="brand">
-          <div className="brand-icon">
-            <RobuxIcon small />
-          </div>
-
-          <span>Robux</span>
-        </div>
-
-        <button className="send-top" onClick={openSend}>
+        <button
+          type="button"
+          className="send-top"
+          onClick={openSend}
+        >
           Send
         </button>
       </header>
@@ -744,7 +720,7 @@ function Home() {
           <div className="cards">
             {PROMO_PACKAGES.map((pkg) => {
               const isSelected =
-                selected?.robux === pkg.robux;
+                selected.robux === pkg.robux;
 
               return (
                 <div
@@ -795,7 +771,7 @@ function Home() {
           <div className="cards">
             {NORMAL_PACKAGES.map((pkg) => {
               const isSelected =
-                selected?.robux === pkg.robux;
+                selected.robux === pkg.robux;
 
               return (
                 <div
@@ -839,28 +815,27 @@ function Home() {
         </section>
       </main>
 
-      {selected && (
-        <div className="selection-bar">
-          <div className="selection-text">
-            <strong>
-              {selected.robux} Robux selected
-            </strong>
+      <div className="selection-bar">
+        <div className="selection-text">
+          <strong>
+            {selected.robux} Robux selected
+          </strong>
 
-            <span>{selected.price}</span>
-          </div>
-
-          <button
-            className="selection-send"
-            onClick={openSend}
-          >
-            Send
-          </button>
+          <span>{selected.price}</span>
         </div>
-      )}
+
+        <button
+          type="button"
+          className="selection-send"
+          onClick={openSend}
+        >
+          Send
+        </button>
+      </div>
 
       <div className="frh">FRH</div>
 
-      {sendOpen && selected && (
+      {sendOpen && (
         <div className="overlay">
           <div className="modal">
             <div className="modal-header">
@@ -869,6 +844,7 @@ function Home() {
               </div>
 
               <button
+                type="button"
                 className="close"
                 onClick={closeSend}
               >
@@ -944,6 +920,7 @@ function Home() {
 
                   <div className="modal-footer">
                     <button
+                      type="button"
                       className="confirm-button"
                       disabled={
                         !foundUsername ||
@@ -977,6 +954,7 @@ function Home() {
                   </p>
 
                   <button
+                    type="button"
                     className="success-button"
                     onClick={closeSend}
                   >
