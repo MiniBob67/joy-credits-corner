@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -20,6 +20,12 @@ const NORMAL_PACKAGES = [
 const ROBUX_ICON =
   "https://images.rbxcdn.com/60bedb6518a319544c9445c519ba8d0e-robux_130x130.svg";
 
+type Package = {
+  robux: string;
+  old: string;
+  price: string;
+};
+
 function RobuxIcon({ small = false }: { small?: boolean }) {
   return (
     <img
@@ -32,66 +38,97 @@ function RobuxIcon({ small = false }: { small?: boolean }) {
 }
 
 function Home() {
-  const [selected, setSelected] = useState<
-    (typeof PROMO_PACKAGES)[number] | (typeof NORMAL_PACKAGES)[number] | null
-  >(null);
+  const [selected, setSelected] = useState<Package | null>(null);
 
   const [sendOpen, setSendOpen] = useState(false);
-  const [userId, setUserId] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const [loadingAvatar, setLoadingAvatar] = useState(false);
   const [username, setUsername] = useState("");
+  const [foundUsername, setFoundUsername] = useState("");
+  const [avatar, setAvatar] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [sent, setSent] = useState(false);
 
-  async function findAvatar() {
-    const id = userId.trim();
+  useEffect(() => {
+    const name = username.trim();
 
-    if (!id || !/^\d+$/.test(id)) {
-      setAvatar("");
-      setUsername("");
+    setFoundUsername("");
+    setAvatar("");
+
+    if (!name) {
+      setSearching(false);
       return;
     }
 
-    setLoadingAvatar(true);
-
-    try {
-      const avatarResponse = await fetch(
-        `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${id}&size=150x150&format=Png&isCircular=false`
-      );
-
-      const avatarData = await avatarResponse.json();
-
-      if (avatarData?.data?.[0]?.imageUrl) {
-        setAvatar(avatarData.data[0].imageUrl);
-      } else {
-        setAvatar("");
-      }
+    const timer = setTimeout(async () => {
+      setSearching(true);
 
       try {
-        const userResponse = await fetch(
-          `https://users.roblox.com/v1/users/${id}`
+        const response = await fetch(
+          "https://users.roblox.com/v1/usernames/users",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              usernames: [name],
+              excludeBannedUsers: false,
+            }),
+          }
         );
 
-        if (userResponse.ok) {
-          const userData = await userResponse.json();
-          setUsername(userData?.name || "");
-        } else {
-          setUsername("");
+        if (!response.ok) {
+          throw new Error("User lookup failed");
+        }
+
+        const data = await response.json();
+        const user = data?.data?.[0];
+
+        if (!user) {
+          setFoundUsername("");
+          setAvatar("");
+          return;
+        }
+
+        setFoundUsername(user.name);
+
+        const avatarResponse = await fetch(
+          `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${user.id}&size=150x150&format=Png&isCircular=false`
+        );
+
+        if (avatarResponse.ok) {
+          const avatarData = await avatarResponse.json();
+
+          setAvatar(
+            avatarData?.data?.[0]?.imageUrl || ""
+          );
         }
       } catch {
-        setUsername("");
+        setFoundUsername("");
+        setAvatar("");
+      } finally {
+        setSearching(false);
       }
-    } catch {
-      setAvatar("");
-      setUsername("");
-    }
+    }, 500);
 
-    setLoadingAvatar(false);
-  }
+    return () => clearTimeout(timer);
+  }, [username]);
 
   function openSend() {
     if (!selected) return;
 
+    setSent(false);
     setSendOpen(true);
+  }
+
+  function closeSend() {
+    setSendOpen(false);
+    setSent(false);
+  }
+
+  function confirmSend() {
+    if (!selected || !foundUsername) return;
+
+    setSent(true);
   }
 
   return (
@@ -105,8 +142,8 @@ function Home() {
         body,
         #root {
           margin: 0;
-          min-height: 100%;
           width: 100%;
+          min-height: 100%;
         }
 
         body {
@@ -132,9 +169,9 @@ function Home() {
           background:
             radial-gradient(
               circle at 50% -100px,
-              rgba(255,255,255,1),
-              rgba(245,245,245,0.92) 420px,
-              #f3f3f3 800px
+              #ffffff,
+              #f5f5f5 500px,
+              #f3f3f3 900px
             );
           padding-bottom: 110px;
         }
@@ -185,18 +222,10 @@ function Home() {
           font-size: 14px;
           font-weight: 700;
           cursor: pointer;
-          transition:
-            transform 0.12s ease,
-            background 0.12s ease;
         }
 
         .send-top:hover {
           background: #303030;
-          transform: translateY(-1px);
-        }
-
-        .send-top:active {
-          transform: translateY(0);
         }
 
         .content {
@@ -247,14 +276,14 @@ function Home() {
           padding: 15px 19px;
           cursor: pointer;
           transition:
-            border-color 0.15s ease,
-            box-shadow 0.15s ease,
-            transform 0.15s ease;
+            border-color .15s ease,
+            box-shadow .15s ease,
+            transform .15s ease;
         }
 
         .card:hover {
           border-color: #c9c9c9;
-          box-shadow: 0 4px 18px rgba(0,0,0,0.055);
+          box-shadow: 0 4px 18px rgba(0,0,0,.055);
           transform: translateY(-1px);
         }
 
@@ -364,7 +393,7 @@ function Home() {
           align-items: center;
           justify-content: space-between;
           gap: 15px;
-          box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+          box-shadow: 0 12px 40px rgba(0,0,0,.2);
           z-index: 30;
         }
 
@@ -416,7 +445,7 @@ function Home() {
         .overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0,0,0,0.48);
+          background: rgba(0,0,0,.48);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -429,7 +458,7 @@ function Home() {
           width: min(450px, 100%);
           background: white;
           border-radius: 16px;
-          box-shadow: 0 25px 80px rgba(0,0,0,0.25);
+          box-shadow: 0 25px 80px rgba(0,0,0,.25);
           overflow: hidden;
         }
 
@@ -498,39 +527,29 @@ function Home() {
           margin-bottom: 7px;
         }
 
-        .input-row {
-          display: flex;
-          gap: 8px;
-        }
-
-        .user-input {
-          flex: 1;
-          min-width: 0;
-          height: 43px;
+        .username-input {
+          width: 100%;
+          height: 45px;
           border: 1px solid #d8d8d8;
           border-radius: 8px;
-          padding: 0 12px;
+          padding: 0 13px;
           outline: none;
           font-size: 14px;
         }
 
-        .user-input:focus {
+        .username-input:focus {
           border-color: #777;
         }
 
-        .find-button {
-          height: 43px;
-          border: 0;
-          background: #191919;
-          color: white;
-          padding: 0 16px;
-          border-radius: 8px;
-          font-weight: 700;
-          cursor: pointer;
+        .search-status {
+          height: 18px;
+          margin-top: 7px;
+          color: #999;
+          font-size: 11px;
         }
 
-        .avatar-result {
-          margin-top: 17px;
+        .user-result {
+          margin-top: 5px;
           border: 1px solid #e2e2e2;
           border-radius: 11px;
           padding: 11px;
@@ -558,6 +577,15 @@ function Home() {
           margin-top: 3px;
         }
 
+        .not-found {
+          margin-top: 5px;
+          border-radius: 9px;
+          background: #f7f7f7;
+          color: #888;
+          padding: 12px;
+          font-size: 12px;
+        }
+
         .modal-footer {
           margin-top: 22px;
         }
@@ -578,8 +606,51 @@ function Home() {
         }
 
         .confirm-button:disabled {
-          opacity: 0.45;
+          opacity: .45;
           cursor: not-allowed;
+        }
+
+        .success {
+          text-align: center;
+          padding: 18px 0 5px;
+        }
+
+        .success-icon {
+          width: 58px;
+          height: 58px;
+          border-radius: 50%;
+          background: #191919;
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 14px;
+          font-size: 25px;
+          font-weight: 900;
+        }
+
+        .success h2 {
+          margin: 0;
+          font-size: 20px;
+        }
+
+        .success p {
+          color: #777;
+          font-size: 13px;
+          line-height: 1.5;
+          margin: 8px 20px 0;
+        }
+
+        .success-button {
+          margin-top: 20px;
+          width: 100%;
+          height: 44px;
+          border: 0;
+          border-radius: 9px;
+          background: #191919;
+          color: white;
+          font-weight: 800;
+          cursor: pointer;
         }
 
         .note {
@@ -639,6 +710,7 @@ function Home() {
           <div className="brand-icon">
             <RobuxIcon small />
           </div>
+
           <span>Robux</span>
         </div>
 
@@ -673,7 +745,9 @@ function Home() {
                   <div className="package-info">
                     <div className="package-amount">
                       <span>{pkg.robux}</span>
-                      <span className="package-old">{pkg.old}</span>
+                      <span className="package-old">
+                        {pkg.old}
+                      </span>
                     </div>
 
                     <div className="package-label">
@@ -686,7 +760,9 @@ function Home() {
                   </div>
 
                   <div className="check">
-                    {isSelected && <div className="check-inner" />}
+                    {isSelected && (
+                      <div className="check-inner" />
+                    )}
                   </div>
                 </div>
               );
@@ -714,7 +790,9 @@ function Home() {
                   <div className="package-info">
                     <div className="package-amount">
                       <span>{pkg.robux}</span>
-                      <span className="package-old">{pkg.old}</span>
+                      <span className="package-old">
+                        {pkg.old}
+                      </span>
                     </div>
 
                     <div className="package-label">
@@ -727,7 +805,9 @@ function Home() {
                   </div>
 
                   <div className="check">
-                    {isSelected && <div className="check-inner" />}
+                    {isSelected && (
+                      <div className="check-inner" />
+                    )}
                   </div>
                 </div>
               );
@@ -739,11 +819,17 @@ function Home() {
       {selected && (
         <div className="selection-bar">
           <div className="selection-text">
-            <strong>{selected.robux} Robux selected</strong>
+            <strong>
+              {selected.robux} Robux selected
+            </strong>
+
             <span>{selected.price}</span>
           </div>
 
-          <button className="selection-send" onClick={openSend}>
+          <button
+            className="selection-send"
+            onClick={openSend}
+          >
             Send
           </button>
         </div>
@@ -755,87 +841,122 @@ function Home() {
         <div className="overlay">
           <div className="modal">
             <div className="modal-header">
-              <div className="modal-title">Send Robux</div>
+              <div className="modal-title">
+                Send Robux
+              </div>
 
               <button
                 className="close"
-                onClick={() => setSendOpen(false)}
-                aria-label="Close"
+                onClick={closeSend}
               >
                 ×
               </button>
             </div>
 
             <div className="modal-body">
-              <div className="selected-preview">
-                <RobuxIcon />
+              {!sent ? (
+                <>
+                  <div className="selected-preview">
+                    <RobuxIcon />
 
-                <div className="preview-info">
-                  <strong>{selected.robux} Robux</strong>
-                  <span>{selected.price}</span>
-                </div>
-              </div>
+                    <div className="preview-info">
+                      <strong>
+                        {selected.robux} Robux
+                      </strong>
 
-              <label className="field-label">
-                Roblox User ID
-              </label>
-
-              <div className="input-row">
-                <input
-                  className="user-input"
-                  value={userId}
-                  onChange={(e) => setUserId(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      findAvatar();
-                    }
-                  }}
-                  placeholder="Enter User ID"
-                  inputMode="numeric"
-                />
-
-                <button
-                  className="find-button"
-                  onClick={findAvatar}
-                  disabled={loadingAvatar}
-                >
-                  {loadingAvatar ? "..." : "Find"}
-                </button>
-              </div>
-
-              {avatar && (
-                <div className="avatar-result">
-                  <img
-                    className="avatar"
-                    src={avatar}
-                    alt=""
-                  />
-
-                  <div>
-                    <div className="avatar-name">
-                      {username || "Roblox user"}
-                    </div>
-
-                    <div className="avatar-id">
-                      ID: {userId}
+                      <span>
+                        {selected.price}
+                      </span>
                     </div>
                   </div>
+
+                  <label className="field-label">
+                    Roblox username
+                  </label>
+
+                  <input
+                    className="username-input"
+                    value={username}
+                    onChange={(e) =>
+                      setUsername(e.target.value)
+                    }
+                    placeholder="Enter username"
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+
+                  <div className="search-status">
+                    {searching
+                      ? "Finding user..."
+                      : username.trim() && !foundUsername
+                        ? " "
+                        : ""}
+                  </div>
+
+                  {foundUsername && avatar && (
+                    <div className="user-result">
+                      <img
+                        className="avatar"
+                        src={avatar}
+                        alt=""
+                      />
+
+                      <div>
+                        <div className="avatar-name">
+                          {foundUsername}
+                        </div>
+
+                        <div className="avatar-id">
+                          Roblox user
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {username.trim() &&
+                    !searching &&
+                    !foundUsername && (
+                      <div className="not-found">
+                        User not found.
+                      </div>
+                    )}
+
+                  <div className="modal-footer">
+                    <button
+                      className="confirm-button"
+                      disabled={!foundUsername || !avatar}
+                      onClick={confirmSend}
+                    >
+                      Send
+                    </button>
+
+                    <div className="note">
+                      FRH — Fake Robux Hub. No account
+                      credentials are requested.
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="success">
+                  <div className="success-icon">
+                    ✓
+                  </div>
+
+                  <h2>Send preview created</h2>
+
+                  <p>
+                    {selected.robux} Robux package
+                    selected for @{foundUsername}.
+                  </p>
+
+                  <button
+                    className="success-button"
+                    onClick={closeSend}
+                  >
+                    Done
+                  </button>
                 </div>
               )}
-
-              <div className="modal-footer">
-                <button
-                  className="confirm-button"
-                  disabled={!avatar}
-                  onClick={() => setSendOpen(false)}
-                >
-                  Confirm
-                </button>
-
-                <div className="note">
-                  FRH — Fake Robux Hub. No account credentials are requested.
-                </div>
-              </div>
             </div>
           </div>
         </div>
