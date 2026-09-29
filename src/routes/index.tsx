@@ -5,9 +5,6 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-const ROBUX_ICON =
-  "https://tr.rbxcdn.com/30DAY-IMAGE/420b7f7c8f1c4c4b8f1c5a9b2d5d3c5d/420/420/AvatarHeadshot/Png/noFilter";
-
 const PROMO_PACKAGES = [
   { robux: "24,000", old: "22,500", price: "1 149,99 zł" },
   { robux: "11,000", old: "10,000", price: "599,99 zł" },
@@ -20,13 +17,27 @@ const NORMAL_PACKAGES = [
   { robux: "1,500", old: "1,200", price: "79,99 zł" },
 ];
 
-function RobuxIcon() {
+function RobuxIcon({ small = false }: { small?: boolean }) {
   return (
-    <img
-      className="robux-icon"
-      src={ROBUX_ICON}
-      alt="Robux"
-    />
+    <svg
+      className={`robux-icon ${small ? "small" : ""}`}
+      viewBox="0 0 100 100"
+      aria-label="Robux"
+      role="img"
+    >
+      <path
+        d="M25 18L75 18L91 34L91 66L75 82L25 82L9 66L9 34L25 18Z"
+        fill="#ffffff"
+      />
+      <path
+        d="M32 29L68 29L79 40L79 60L68 71L32 71L21 60L21 40L32 29Z"
+        fill="#111111"
+      />
+      <path
+        d="M39 37L61 37L68 44L68 56L61 63L39 63L32 56L32 44L39 37Z"
+        fill="#ffffff"
+      />
+    </svg>
   );
 }
 
@@ -62,12 +73,20 @@ function Home() {
     }
   }
 
+  function openSend() {
+    setSendOpen(true);
+  }
+
+  function closeSend() {
+    setSendOpen(false);
+  }
+
   return (
     <div className="site">
       <header className="topbar">
         <div className="brand">
           <div className="brand-logo">
-            <RobuxIcon />
+            <RobuxIcon small />
           </div>
 
           <div className="brand-text">
@@ -76,7 +95,7 @@ function Home() {
           </div>
         </div>
 
-        <button className="send-button" onClick={() => setSendOpen(true)}>
+        <button className="send-button" onClick={openSend}>
           Send
           <span>→</span>
         </button>
@@ -98,7 +117,9 @@ function Home() {
               onClick={() => setSelected(item.robux)}
             >
               <div className="package-left">
-                <RobuxIcon />
+                <div className="icon-box">
+                  <RobuxIcon />
+                </div>
 
                 <div className="package-info">
                   <strong>{item.robux}</strong>
@@ -122,31 +143,32 @@ function Home() {
         <section className="normal-section">
           <h2>Robux packages</h2>
 
-          <button
-            className={`normal-card ${
-              selected === NORMAL_PACKAGES[0].robux ? "active" : ""
-            }`}
-            onClick={() => setSelected(NORMAL_PACKAGES[0].robux)}
-          >
-            <div className="normal-left">
-              <RobuxIcon />
+          {NORMAL_PACKAGES.map((item) => (
+            <button
+              key={item.robux}
+              className={`normal-card ${
+                selected === item.robux ? "active" : ""
+              }`}
+              onClick={() => setSelected(item.robux)}
+            >
+              <div className="normal-left">
+                <div className="icon-box normal-icon">
+                  <RobuxIcon />
+                </div>
 
-              <div>
-                <strong>{NORMAL_PACKAGES[0].robux}</strong>
+                <div>
+                  <strong>{item.robux}</strong>
 
-                <div className="normal-sub">
-                  <span className="old-value">
-                    {NORMAL_PACKAGES[0].old}
-                  </span>
-                  <span>Robux</span>
+                  <div className="normal-sub">
+                    <span className="old-value">{item.old}</span>
+                    <span>Robux</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <strong className="normal-price">
-              {NORMAL_PACKAGES[0].price}
-            </strong>
-          </button>
+              <strong className="normal-price">{item.price}</strong>
+            </button>
+          ))}
         </section>
 
         {selected && (
@@ -156,19 +178,14 @@ function Home() {
               <strong>{selected} Robux</strong>
             </div>
 
-            <button onClick={() => setSendOpen(true)}>
-              Continue →
-            </button>
+            <button onClick={openSend}>Continue →</button>
           </div>
         )}
 
         {sendOpen && (
           <div className="overlay">
             <div className="send-panel">
-              <button
-                className="close"
-                onClick={() => setSendOpen(false)}
-              >
+              <button className="close" onClick={closeSend}>
                 ×
               </button>
 
@@ -179,9 +196,7 @@ function Home() {
 
                 <div>
                   <h2>Send Robux</h2>
-                  <p>
-                    Choose a recipient for your selected package.
-                  </p>
+                  <p>Choose a recipient for your selected package.</p>
                 </div>
               </div>
 
@@ -226,7 +241,7 @@ function Home() {
               <button
                 className="confirm"
                 disabled={!selected || !userId}
-                onClick={() => setSendOpen(false)}
+                onClick={closeSend}
               >
                 Send {selected || "Robux"}
                 <span>→</span>
@@ -302,14 +317,20 @@ function Home() {
           border-radius: 8px;
           background: #00a2ff;
           display: flex;
-          justify-content: center;
           align-items: center;
+          justify-content: center;
           overflow: hidden;
         }
 
-        .brand-logo .robux-icon {
-          width: 27px;
-          height: 27px;
+        .robux-icon {
+          width: 45px;
+          height: 45px;
+          display: block;
+        }
+
+        .robux-icon.small {
+          width: 29px;
+          height: 29px;
         }
 
         .brand-text {
@@ -340,6 +361,12 @@ function Home() {
           display: flex;
           align-items: center;
           gap: 8px;
+          transition: 0.15s;
+        }
+
+        .send-button:hover {
+          filter: brightness(1.08);
+          transform: translateY(-1px);
         }
 
         .send-button span {
@@ -381,11 +408,7 @@ function Home() {
           padding: 16px 20px;
           border-radius: 12px;
           border: 1px solid #30353d;
-          background: linear-gradient(
-            145deg,
-            #1c2025,
-            #15181c
-          );
+          background: linear-gradient(145deg, #1c2025, #15181c);
           color: white;
           cursor: pointer;
           position: relative;
@@ -399,6 +422,7 @@ function Home() {
         .package-card:hover {
           border-color: #4c5661;
           transform: translateY(-2px);
+          background: #1d2228;
         }
 
         .package-card.active {
@@ -414,11 +438,15 @@ function Home() {
           gap: 15px;
         }
 
-        .robux-icon {
-          width: 48px;
-          height: 48px;
+        .icon-box {
+          width: 54px;
+          height: 54px;
           flex-shrink: 0;
-          object-fit: contain;
+          border-radius: 11px;
+          background: #111419;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .package-info {
@@ -429,6 +457,7 @@ function Home() {
 
         .package-info strong {
           font-size: 22px;
+          letter-spacing: -0.4px;
         }
 
         .package-sub {
@@ -491,6 +520,11 @@ function Home() {
           align-items: center;
           justify-content: space-between;
           cursor: pointer;
+          transition: 0.15s;
+        }
+
+        .normal-card:hover {
+          border-color: #4c5661;
         }
 
         .normal-card.active {
@@ -504,9 +538,9 @@ function Home() {
           gap: 13px;
         }
 
-        .normal-left .robux-icon {
-          width: 43px;
-          height: 43px;
+        .normal-icon {
+          width: 48px;
+          height: 48px;
         }
 
         .normal-left strong {
@@ -534,6 +568,7 @@ function Home() {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          gap: 15px;
         }
 
         .selection-bar div {
@@ -613,8 +648,8 @@ function Home() {
         }
 
         .send-icon .robux-icon {
-          width: 34px;
-          height: 34px;
+          width: 35px;
+          height: 35px;
         }
 
         .send-title h2 {
@@ -666,6 +701,10 @@ function Home() {
           overflow: hidden;
         }
 
+        .user-input:focus-within {
+          border-color: #00a2ff;
+        }
+
         .user-input input {
           flex: 1;
           min-width: 0;
@@ -686,6 +725,11 @@ function Home() {
           cursor: pointer;
           font-size: 11px;
           font-weight: 700;
+        }
+
+        .find-button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
 
         .user-preview {
@@ -784,9 +828,14 @@ function Home() {
             font-size: 19px;
           }
 
+          .icon-box {
+            width: 47px;
+            height: 47px;
+          }
+
           .robux-icon {
-            width: 43px;
-            height: 43px;
+            width: 39px;
+            height: 39px;
           }
 
           .price {
