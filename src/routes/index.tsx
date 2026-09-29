@@ -5,16 +5,26 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
+const PROMO_PACKAGES = [
+  { robux: "24,000", old: "22,500", price: "1 149,99 zł" },
+  { robux: "11,000", old: "10,000", price: "599,99 zł" },
+  { robux: "5,250", old: "4,500", price: "299,99 zł" },
+  { robux: "3,625", old: "3,150", price: "199,99 zł" },
+  { robux: "2,000", old: "1,700", price: "119,99 zł" },
+];
+
+const NORMAL_PACKAGES = [
+  { robux: "1,500", old: "1,200", price: "79,99 zł" },
+];
+
 function Home() {
+  const [selected, setSelected] = useState<string | null>(null);
+  const [sendOpen, setSendOpen] = useState(false);
   const [userId, setUserId] = useState("");
-  const [amount, setAmount] = useState("");
   const [avatar, setAvatar] = useState("");
   const [loadingAvatar, setLoadingAvatar] = useState(false);
-  const [processing, setProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [finished, setFinished] = useState(false);
 
-  const findAvatar = async () => {
+  async function findAvatar() {
     const id = userId.trim();
 
     if (!id || !/^\d+$/.test(id)) return;
@@ -37,236 +47,197 @@ function Home() {
     } finally {
       setLoadingAvatar(false);
     }
-  };
+  }
 
-  const startDemo = () => {
-    if (!userId || !amount || Number(amount) <= 0) return;
+  function selectPackage(robux: string) {
+    setSelected(robux);
+  }
 
-    setProcessing(true);
-    setFinished(false);
-    setProgress(0);
+  function openSend() {
+    setSendOpen(true);
+  }
 
-    let value = 0;
-
-    const interval = setInterval(() => {
-      value += Math.floor(Math.random() * 9) + 4;
-
-      if (value >= 100) {
-        value = 100;
-        clearInterval(interval);
-
-        setTimeout(() => {
-          setProcessing(false);
-          setFinished(true);
-        }, 600);
-      }
-
-      setProgress(value);
-    }, 300);
-  };
-
-  const reset = () => {
-    setProcessing(false);
-    setFinished(false);
-    setProgress(0);
-    setUserId("");
-    setAmount("");
-    setAvatar("");
-  };
+  function closeSend() {
+    setSendOpen(false);
+  }
 
   return (
-    <div className="app">
-      <header className="navbar">
-        <div className="logo">
-          <div className="logoBox">R</div>
-          <span>Robux Center</span>
+    <div className="site">
+      <header className="topbar">
+        <div className="brand">
+          <div className="brand-logo">R$</div>
+
+          <div className="brand-text">
+            <strong>Robux Center</strong>
+            <span>Currency Store</span>
+          </div>
         </div>
 
-        <div className="status">
-          <span />
-          Online
-        </div>
+        <button className="send-button" onClick={openSend}>
+          Send
+          <span>→</span>
+        </button>
       </header>
 
-      <main className="main">
-        <section className="panel">
-          {!processing && !finished && (
-            <>
-              <div className="hero">
-                <div className="heroIcon">R$</div>
-
-                <h1>Robux Transfer</h1>
-
-                <p>
-                  Create a fictional Robux transfer preview using
-                  publicly available avatar information.
-                </p>
-              </div>
-
-              <div className="field">
-                <label>Roblox User ID</label>
-
-                <div className="input">
-                  <input
-                    value={userId}
-                    onChange={(e) => setUserId(e.target.value)}
-                    placeholder="Example: 123456789"
-                    inputMode="numeric"
-                  />
-
-                  <button
-                    className="lookup"
-                    onClick={findAvatar}
-                    disabled={loadingAvatar}
-                  >
-                    {loadingAvatar ? "..." : "Find"}
-                  </button>
-                </div>
-              </div>
-
-              {avatar && (
-                <div className="profile">
-                  <img src={avatar} alt="Roblox avatar" />
-
-                  <div>
-                    <span>Recipient avatar</span>
-                    <strong>User ID: {userId}</strong>
-                  </div>
-
-                  <div className="verified">✓</div>
-                </div>
-              )}
-
-              <div className="field">
-                <label>Amount</label>
-
-                <div className="amountInput">
-                  <span>R$</span>
-
-                  <input
-                    type="number"
-                    min="1"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-
-              <div className="preview">
-                <div>
-                  <span>Recipient</span>
-                  <strong>
-                    {userId ? `User ${userId}` : "Not selected"}
-                  </strong>
-                </div>
-
-                <div>
-                  <span>Amount</span>
-                  <strong>
-                    {amount
-                      ? `${Number(amount).toLocaleString()} R$`
-                      : "—"}
-                  </strong>
-                </div>
-              </div>
-
-              <button
-                className="primary"
-                onClick={startDemo}
-                disabled={
-                  !userId ||
-                  !amount ||
-                  Number(amount) <= 0
-                }
-              >
-                Preview Transfer
-                <b>→</b>
-              </button>
-
-              <div className="notice">
-                <span>ⓘ</span>
-                This is a fictional transfer preview. No Robux are
-                actually transferred.
-              </div>
-            </>
-          )}
-
-          {processing && (
-            <div className="processing">
-              <div className="spinner">
-                <div>R$</div>
-              </div>
-
-              <h1>Preparing preview</h1>
-
-              <p>
-                Generating a fictional transfer preview...
-              </p>
-
-              <div className="progress">
-                <div style={{ width: `${progress}%` }} />
-              </div>
-
-              <div className="percent">
-                <span>{progress}%</span>
-                <span>Please wait</span>
-              </div>
-
-              {avatar && (
-                <img
-                  className="processingAvatar"
-                  src={avatar}
-                  alt="Avatar"
-                />
-              )}
-            </div>
-          )}
-
-          {finished && (
-            <div className="finished">
-              <div className="successIcon">✓</div>
-
-              <h1>Preview ready</h1>
-
-              <p>
-                Your fictional transfer preview has been created.
-              </p>
-
-              {avatar && (
-                <img
-                  className="finishedAvatar"
-                  src={avatar}
-                  alt="Avatar"
-                />
-              )}
-
-              <div className="result">
-                <span>Preview amount</span>
-
-                <strong>
-                  +{Number(amount).toLocaleString()} R$
-                </strong>
-              </div>
-
-              <div className="transaction">
-                <span>Preview ID</span>
-                <strong>
-                  DEMO-{Math.floor(10000000 + Math.random() * 89999999)}
-                </strong>
-              </div>
-
-              <button className="primary" onClick={reset}>
-                New Preview
-              </button>
-            </div>
-          )}
+      <main className="content">
+        <section className="hero">
+          <h1>Enjoy up to 25% more Robux</h1>
+          <p>Get more Robux with selected packages.</p>
         </section>
 
-        <footer>
-          Fan-made interface • No real Robux transactions
-        </footer>
+        <section className="package-section">
+          <div className="cards">
+            {PROMO_PACKAGES.map((item) => (
+              <button
+                key={item.robux}
+                className={`package-card ${
+                  selected === item.robux ? "active" : ""
+                }`}
+                onClick={() => selectPackage(item.robux)}
+              >
+                <div className="robux-icon">R$</div>
+
+                <div className="package-info">
+                  <strong>{item.robux}</strong>
+
+                  <span className="old-value">
+                    {item.old}
+                  </span>
+
+                  <span className="robux-label">Robux</span>
+                </div>
+
+                <div className="price">{item.price}</div>
+
+                {selected === item.robux && (
+                  <div className="selected-check">✓</div>
+                )}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="normal-section">
+          <h2>Robux packages</h2>
+
+          <div className="normal-card-row">
+            {NORMAL_PACKAGES.map((item) => (
+              <button
+                key={item.robux}
+                className={`normal-card ${
+                  selected === item.robux ? "active" : ""
+                }`}
+                onClick={() => selectPackage(item.robux)}
+              >
+                <div className="normal-left">
+                  <div className="robux-icon">R$</div>
+
+                  <div>
+                    <strong>{item.robux}</strong>
+
+                    <div className="normal-sub">
+                      <span className="old-value">
+                        {item.old}
+                      </span>
+                      <span>Robux</span>
+                    </div>
+                  </div>
+                </div>
+
+                <strong className="normal-price">
+                  {item.price}
+                </strong>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {selected && (
+          <div className="selection-bar">
+            <div>
+              <span>Selected package</span>
+              <strong>{selected} Robux</strong>
+            </div>
+
+            <button onClick={openSend}>
+              Continue →
+            </button>
+          </div>
+        )}
+
+        {sendOpen && (
+          <div className="overlay">
+            <div className="send-panel">
+              <button className="close" onClick={closeSend}>
+                ×
+              </button>
+
+              <div className="send-title">
+                <div className="send-icon">→</div>
+
+                <div>
+                  <h2>Send Robux</h2>
+                  <p>Choose a recipient for your selected package.</p>
+                </div>
+              </div>
+
+              <div className="chosen">
+                <span>Selected package</span>
+                <strong>
+                  {selected ? `${selected} Robux` : "None selected"}
+                </strong>
+              </div>
+
+              <label>Roblox User ID</label>
+
+              <div className="user-input">
+                <input
+                  value={userId}
+                  onChange={(e) => setUserId(e.target.value)}
+                  placeholder="Enter User ID"
+                />
+
+                <button
+                  onClick={findAvatar}
+                  disabled={loadingAvatar}
+                >
+                  {loadingAvatar ? "..." : "Find"}
+                </button>
+              </div>
+
+              {avatar && (
+                <div className="user-preview">
+                  <img src={avatar} alt="Avatar" />
+
+                  <div>
+                    <span>Recipient</span>
+                    <strong>User {userId}</strong>
+                  </div>
+
+                  <b>✓</b>
+                </div>
+              )}
+
+              <button
+                className="confirm"
+                disabled={!selected || !userId}
+                onClick={() => {
+                  closeSend();
+                }}
+              >
+                Send {selected || "Robux"}
+                <span>→</span>
+              </button>
+
+              <p className="small-note">
+                No account credentials are requested.
+              </p>
+            </div>
+          </div>
+        )}
       </main>
+
+      <div className="frh">FRH</div>
 
       <style>{`
         * {
@@ -275,7 +246,7 @@ function Home() {
 
         body {
           margin: 0;
-          background: #0d0f12;
+          background: #0f1114;
           color: #f4f5f6;
           font-family: Arial, Helvetica, sans-serif;
         }
@@ -285,447 +256,546 @@ function Home() {
           font: inherit;
         }
 
-        .app {
+        button {
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        .site {
           min-height: 100vh;
           background:
             radial-gradient(
-              circle at 50% -20%,
-              #27313d 0%,
-              #121519 38%,
-              #0d0f12 75%
+              circle at 50% -15%,
+              #26313d 0%,
+              #15191e 38%,
+              #0f1114 72%
             );
+          position: relative;
+          padding-bottom: 55px;
         }
 
-        .navbar {
-          height: 64px;
-          padding: 0 28px;
-          border-bottom: 1px solid #292d33;
-          background: rgba(13, 15, 18, .92);
+        .topbar {
+          height: 68px;
+          border-bottom: 1px solid #2b3037;
+          background: rgba(13, 15, 18, 0.94);
           display: flex;
           align-items: center;
           justify-content: space-between;
+          padding: 0 30px;
+          position: sticky;
+          top: 0;
+          z-index: 10;
+          backdrop-filter: blur(12px);
         }
 
-        .logo {
-          display: flex;
-          align-items: center;
-          gap: 11px;
-          font-weight: 800;
-        }
-
-        .logoBox {
-          width: 35px;
-          height: 35px;
-          border-radius: 8px;
-          background: #00a2ff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 900;
-          box-shadow: 0 5px 20px rgba(0,162,255,.25);
-        }
-
-        .status {
-          color: #8e969f;
-          font-size: 13px;
-          display: flex;
-          align-items: center;
-          gap: 7px;
-        }
-
-        .status span {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: #25d47b;
-          box-shadow: 0 0 8px #25d47b;
-        }
-
-        .main {
-          min-height: calc(100vh - 64px);
-          display: flex;
-          align-items: center;
-          flex-direction: column;
-          justify-content: center;
-          padding: 45px 18px;
-        }
-
-        .panel {
-          width: 100%;
-          max-width: 475px;
-          background: #191c20;
-          border: 1px solid #30353c;
-          border-radius: 15px;
-          padding: 32px;
-          box-shadow: 0 30px 80px rgba(0,0,0,.45);
-        }
-
-        .hero {
-          text-align: center;
-          margin-bottom: 30px;
-        }
-
-        .heroIcon {
-          width: 60px;
-          height: 60px;
-          margin: auto auto 16px;
-          border-radius: 14px;
-          background: #00a2ff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 19px;
-          font-weight: 900;
-          box-shadow: 0 10px 30px rgba(0,162,255,.25);
-        }
-
-        h1 {
-          margin: 0;
-          font-size: 25px;
-        }
-
-        .hero p {
-          margin: 10px auto 0;
-          max-width: 360px;
-          color: #8e969f;
-          font-size: 13px;
-          line-height: 1.55;
-        }
-
-        .field {
-          margin-top: 17px;
-        }
-
-        label {
-          display: block;
-          margin-bottom: 8px;
-          color: #d9dce0;
-          font-size: 13px;
-          font-weight: 700;
-        }
-
-        .input,
-        .amountInput {
-          height: 52px;
-          border: 1px solid #353a42;
-          border-radius: 9px;
-          background: #101216;
-          display: flex;
-          align-items: center;
-          overflow: hidden;
-        }
-
-        .input:focus-within,
-        .amountInput:focus-within {
-          border-color: #00a2ff;
-        }
-
-        input {
-          min-width: 0;
-          width: 100%;
-          height: 100%;
-          padding: 0 14px;
-          border: 0;
-          outline: 0;
-          color: white;
-          background: transparent;
-        }
-
-        input::placeholder {
-          color: #626a74;
-        }
-
-        .lookup {
-          height: 34px;
-          margin-right: 9px;
-          padding: 0 13px;
-          border: 0;
-          border-radius: 6px;
-          color: white;
-          background: #292e35;
-          cursor: pointer;
-          font-size: 12px;
-          font-weight: 700;
-        }
-
-        .lookup:hover {
-          background: #353b43;
-        }
-
-        .amountInput span {
-          padding-left: 14px;
-          color: #00a2ff;
-          font-weight: 900;
-        }
-
-        .profile {
-          margin-top: 13px;
-          padding: 11px;
-          border-radius: 9px;
-          background: #121519;
-          border: 1px solid #2d3239;
+        .brand {
           display: flex;
           align-items: center;
           gap: 11px;
         }
 
-        .profile img {
-          width: 47px;
-          height: 47px;
+        .brand-logo {
+          width: 36px;
+          height: 36px;
           border-radius: 8px;
-          object-fit: cover;
-          background: #292e35;
-        }
-
-        .profile div:nth-child(2) {
-          min-width: 0;
-          flex: 1;
+          background: #00a2ff;
           display: flex;
-          flex-direction: column;
-          gap: 5px;
-        }
-
-        .profile span {
-          color: #777f89;
-          font-size: 11px;
-        }
-
-        .profile strong {
-          font-size: 13px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .verified {
-          color: #25d47b;
+          justify-content: center;
+          align-items: center;
+          font-size: 14px;
           font-weight: 900;
+          box-shadow: 0 5px 20px rgba(0, 162, 255, .25);
         }
 
-        .preview {
-          margin-top: 18px;
-          padding: 14px;
-          border-radius: 9px;
-          background: #121519;
-          border: 1px solid #292e35;
-          display: flex;
-          justify-content: space-between;
-          gap: 15px;
-        }
-
-        .preview div {
-          min-width: 0;
+        .brand-text {
           display: flex;
           flex-direction: column;
-          gap: 5px;
+          gap: 2px;
         }
 
-        .preview span {
-          color: #6e7680;
+        .brand-text strong {
+          font-size: 15px;
+        }
+
+        .brand-text span {
           font-size: 10px;
-          text-transform: uppercase;
-          letter-spacing: .6px;
+          color: #707781;
         }
 
-        .preview strong {
-          font-size: 13px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .primary {
-          width: 100%;
-          height: 51px;
-          margin-top: 15px;
+        .send-button {
+          height: 40px;
+          padding: 0 17px;
           border: 0;
-          border-radius: 8px;
+          border-radius: 7px;
           background: #00a2ff;
           color: white;
+          font-size: 13px;
           font-weight: 800;
           cursor: pointer;
           display: flex;
           align-items: center;
-          justify-content: center;
-          gap: 9px;
+          gap: 8px;
           transition: .15s;
         }
 
-        .primary:hover:not(:disabled) {
+        .send-button:hover {
           filter: brightness(1.08);
           transform: translateY(-1px);
         }
 
-        .primary:disabled {
+        .send-button span {
+          font-size: 18px;
+        }
+
+        .content {
+          width: min(930px, calc(100% - 28px));
+          margin: 0 auto;
+          padding-top: 55px;
+        }
+
+        .hero {
+          text-align: center;
+          margin-bottom: 32px;
+        }
+
+        .hero h1 {
+          margin: 0;
+          font-size: clamp(25px, 4vw, 34px);
+          letter-spacing: -.7px;
+        }
+
+        .hero p {
+          color: #858d97;
+          font-size: 13px;
+          margin-top: 9px;
+        }
+
+        .package-section {
+          width: 100%;
+        }
+
+        .cards {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 12px;
+        }
+
+        .package-card {
+          min-height: 205px;
+          padding: 22px 13px 17px;
+          border-radius: 12px;
+          border: 1px solid #30353d;
+          background: linear-gradient(
+            145deg,
+            #1c2025,
+            #15181c
+          );
+          color: white;
+          cursor: pointer;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: space-between;
+          transition: .16s;
+        }
+
+        .package-card:hover {
+          border-color: #4c5661;
+          transform: translateY(-3px);
+          background: #1d2228;
+        }
+
+        .package-card.active {
+          border-color: #00a2ff;
+          box-shadow: 0 0 0 1px #00a2ff,
+            0 10px 35px rgba(0, 162, 255, .13);
+        }
+
+        .robux-icon {
+          width: 43px;
+          height: 43px;
+          border-radius: 10px;
+          background: #00a2ff;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          color: white;
+          font-size: 12px;
+          font-weight: 900;
+          box-shadow: 0 6px 20px rgba(0, 162, 255, .2);
+        }
+
+        .package-info {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 3px;
+        }
+
+        .package-info strong {
+          font-size: 24px;
+          letter-spacing: -.4px;
+        }
+
+        .old-value {
+          color: #777f89;
+          text-decoration: line-through;
+          font-size: 12px;
+        }
+
+        .robux-label {
+          color: #969da6;
+          font-size: 11px;
+        }
+
+        .price {
+          font-size: 13px;
+          font-weight: 800;
+          color: #e8eaed;
+        }
+
+        .selected-check {
+          position: absolute;
+          top: 9px;
+          right: 9px;
+          width: 21px;
+          height: 21px;
+          border-radius: 50%;
+          background: #00a2ff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+        }
+
+        .normal-section {
+          margin-top: 38px;
+        }
+
+        .normal-section h2 {
+          font-size: 16px;
+          margin: 0 0 13px;
+        }
+
+        .normal-card {
+          width: 100%;
+          min-height: 82px;
+          padding: 15px 18px;
+          border: 1px solid #30353d;
+          border-radius: 11px;
+          background: #191c20;
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          cursor: pointer;
+          transition: .15s;
+        }
+
+        .normal-card:hover {
+          border-color: #4c5661;
+        }
+
+        .normal-card.active {
+          border-color: #00a2ff;
+          box-shadow: 0 0 0 1px #00a2ff;
+        }
+
+        .normal-left {
+          display: flex;
+          align-items: center;
+          gap: 13px;
+        }
+
+        .normal-left strong {
+          font-size: 17px;
+        }
+
+        .normal-sub {
+          display: flex;
+          gap: 6px;
+          color: #707781;
+          font-size: 11px;
+          margin-top: 4px;
+        }
+
+        .normal-price {
+          font-size: 14px;
+        }
+
+        .selection-bar {
+          margin-top: 20px;
+          padding: 13px 15px;
+          border: 1px solid #30353d;
+          border-radius: 10px;
+          background: #191c20;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 15px;
+        }
+
+        .selection-bar div {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .selection-bar span {
+          color: #707781;
+          font-size: 10px;
+          text-transform: uppercase;
+        }
+
+        .selection-bar strong {
+          font-size: 14px;
+        }
+
+        .selection-bar button {
+          border: 0;
+          border-radius: 7px;
+          background: #00a2ff;
+          color: white;
+          padding: 10px 15px;
+          font-weight: 800;
+          cursor: pointer;
+        }
+
+        .overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 100;
+          background: rgba(0, 0, 0, .68);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 18px;
+          backdrop-filter: blur(7px);
+        }
+
+        .send-panel {
+          width: min(450px, 100%);
+          padding: 29px;
+          border-radius: 14px;
+          border: 1px solid #353b43;
+          background: #191c20;
+          box-shadow: 0 30px 100px rgba(0,0,0,.6);
+          position: relative;
+        }
+
+        .close {
+          position: absolute;
+          top: 15px;
+          right: 17px;
+          border: 0;
+          background: transparent;
+          color: #747c86;
+          font-size: 25px;
+          cursor: pointer;
+        }
+
+        .send-title {
+          display: flex;
+          gap: 13px;
+          align-items: center;
+          margin-bottom: 25px;
+        }
+
+        .send-icon {
+          width: 45px;
+          height: 45px;
+          border-radius: 10px;
+          background: #00a2ff;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-weight: 900;
+          font-size: 21px;
+        }
+
+        .send-title h2 {
+          margin: 0;
+          font-size: 21px;
+        }
+
+        .send-title p {
+          margin: 4px 0 0;
+          color: #7d858f;
+          font-size: 11px;
+        }
+
+        .chosen {
+          padding: 13px;
+          border-radius: 8px;
+          border: 1px solid #2e343b;
+          background: #121519;
+          margin-bottom: 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .chosen span {
+          color: #707781;
+          font-size: 11px;
+        }
+
+        .chosen strong {
+          color: #00a2ff;
+          font-size: 14px;
+        }
+
+        label {
+          display: block;
+          color: #d7dbe0;
+          font-size: 12px;
+          font-weight: 700;
+          margin-bottom: 7px;
+        }
+
+        .user-input {
+          height: 48px;
+          border: 1px solid #343a42;
+          border-radius: 8px;
+          background: #101216;
+          display: flex;
+          overflow: hidden;
+        }
+
+        .user-input:focus-within {
+          border-color: #00a2ff;
+        }
+
+        .user-input input {
+          flex: 1;
+          min-width: 0;
+          border: 0;
+          outline: 0;
+          background: transparent;
+          color: white;
+          padding: 0 13px;
+        }
+
+        .findButton {
+          margin: 7px;
+          border: 0;
+          border-radius: 6px;
+          background: #292f36;
+          color: white;
+          padding: 0 12px;
+          cursor: pointer;
+          font-size: 11px;
+          font-weight: 700;
+        }
+
+        .user-preview {
+          margin-top: 12px;
+          padding: 10px;
+          border-radius: 8px;
+          background: #121519;
+          border: 1px solid #2d333a;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .user-preview img {
+          width: 44px;
+          height: 44px;
+          object-fit: cover;
+          border-radius: 8px;
+        }
+
+        .user-preview div {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+        }
+
+        .user-preview span {
+          color: #707781;
+          font-size: 10px;
+        }
+
+        .user-preview strong {
+          font-size: 12px;
+        }
+
+        .user-preview b {
+          color: #25d47b;
+        }
+
+        .confirm {
+          width: 100%;
+          height: 49px;
+          margin-top: 17px;
+          border: 0;
+          border-radius: 8px;
+          background: #00a2ff;
+          color: white;
+          font-weight: 800;
+          cursor: pointer;
+        }
+
+        .confirm:disabled {
           opacity: .35;
           cursor: not-allowed;
         }
 
-        .primary b {
-          font-size: 20px;
+        .confirm span {
+          margin-left: 7px;
+          font-size: 17px;
         }
 
-        .notice {
-          margin-top: 13px;
-          padding: 11px;
-          border-radius: 8px;
-          background: #15181c;
-          color: #737b85;
-          font-size: 10px;
-          line-height: 1.45;
+        .small-note {
           text-align: center;
+          color: #555d67;
+          font-size: 9px;
+          margin: 13px 0 0;
         }
 
-        .notice span {
-          color: #00a2ff;
-          margin-right: 4px;
-        }
-
-        .processing,
-        .finished {
-          text-align: center;
-          padding: 12px 0;
-        }
-
-        .spinner {
-          width: 82px;
-          height: 82px;
-          margin: 0 auto 25px;
-          border: 4px solid #30353c;
-          border-top-color: #00a2ff;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          animation: spin 1s linear infinite;
-        }
-
-        .spinner div {
-          color: #00a2ff;
-          font-weight: 900;
-          animation: counter 1s linear infinite;
-        }
-
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-
-        @keyframes counter {
-          to {
-            transform: rotate(-360deg);
-          }
-        }
-
-        .processing p {
-          color: #89919b;
-          font-size: 13px;
-        }
-
-        .progress {
-          margin-top: 27px;
-          height: 8px;
-          border-radius: 20px;
-          background: #30353c;
-          overflow: hidden;
-        }
-
-        .progress div {
-          height: 100%;
-          border-radius: 20px;
-          background: #00a2ff;
-          transition: width .2s;
-          box-shadow: 0 0 12px rgba(0,162,255,.5);
-        }
-
-        .percent {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 8px;
-          color: #68717c;
-          font-size: 11px;
-        }
-
-        .processingAvatar,
-        .finishedAvatar {
-          width: 82px;
-          height: 82px;
-          margin-top: 25px;
-          border-radius: 12px;
-          object-fit: cover;
-          border: 2px solid #353a42;
-        }
-
-        .successIcon {
-          width: 78px;
-          height: 78px;
-          margin: 0 auto 22px;
-          border-radius: 50%;
-          background: #20c879;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 42px;
-          font-weight: 900;
-          box-shadow: 0 10px 35px rgba(32,200,121,.2);
-        }
-
-        .finished > p {
-          color: #89919b;
-          font-size: 13px;
-        }
-
-        .result {
-          margin-top: 23px;
-          padding: 20px;
-          border: 1px solid #293038;
-          border-radius: 10px;
-          background: #121519;
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-
-        .result span {
-          color: #737b85;
-          font-size: 11px;
-        }
-
-        .result strong {
-          color: #20c879;
-          font-size: 30px;
-        }
-
-        .transaction {
-          margin-top: 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          color: #626a74;
+        .frh {
+          position: fixed;
+          left: 13px;
+          bottom: 9px;
+          color: #4b5159;
           font-size: 10px;
+          letter-spacing: 1px;
+          user-select: none;
+          z-index: 20;
         }
 
-        .transaction strong {
-          color: #858d97;
-          font-weight: 500;
+        @media (max-width: 800px) {
+          .cards {
+            grid-template-columns: repeat(2, 1fr);
+          }
         }
 
-        footer {
-          margin-top: 18px;
-          color: #505760;
-          font-size: 10px;
-        }
-
-        @media (max-width: 520px) {
-          .navbar {
-            padding: 0 16px;
+        @media (max-width: 480px) {
+          .topbar {
+            padding: 0 15px;
           }
 
-          .panel {
+          .content {
+            padding-top: 35px;
+          }
+
+          .cards {
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+          }
+
+          .package-card {
+            min-height: 180px;
+          }
+
+          .package-info strong {
+            font-size: 21px;
+          }
+
+          .send-panel {
             padding: 24px 19px;
-          }
-
-          .main {
-            padding: 25px 12px;
           }
         }
       `}</style>
