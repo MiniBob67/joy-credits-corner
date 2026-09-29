@@ -17,203 +17,781 @@ const NORMAL_PACKAGES = [
   { robux: "1,500", old: "1,200", price: "79,99 zł" },
 ];
 
+const ROBUX_ICON =
+  "https://images.rbxcdn.com/60bedb6518a319544c9445c519ba8d0e-robux_130x130.svg";
+
 function RobuxIcon({ small = false }: { small?: boolean }) {
   return (
-    <svg
+    <img
       className={`robux-icon ${small ? "small" : ""}`}
-      viewBox="0 0 100 100"
-      aria-label="Robux"
-      role="img"
-    >
-      <path
-        d="M25 18L75 18L91 34L91 66L75 82L25 82L9 66L9 34L25 18Z"
-        fill="#ffffff"
-      />
-      <path
-        d="M32 29L68 29L79 40L79 60L68 71L32 71L21 60L21 40L32 29Z"
-        fill="#111111"
-      />
-      <path
-        d="M39 37L61 37L68 44L68 56L61 63L39 63L32 56L32 44L39 37Z"
-        fill="#ffffff"
-      />
-    </svg>
+      src={ROBUX_ICON}
+      alt=""
+      draggable={false}
+    />
   );
 }
 
 function Home() {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<
+    (typeof PROMO_PACKAGES)[number] | (typeof NORMAL_PACKAGES)[number] | null
+  >(null);
+
   const [sendOpen, setSendOpen] = useState(false);
   const [userId, setUserId] = useState("");
   const [avatar, setAvatar] = useState("");
   const [loadingAvatar, setLoadingAvatar] = useState(false);
+  const [username, setUsername] = useState("");
 
   async function findAvatar() {
     const id = userId.trim();
 
-    if (!id || !/^\d+$/.test(id)) return;
+    if (!id || !/^\d+$/.test(id)) {
+      setAvatar("");
+      setUsername("");
+      return;
+    }
 
     setLoadingAvatar(true);
-    setAvatar("");
 
     try {
-      const response = await fetch(
-        `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${id}&size=150x150&format=Png&isCircular=false`,
+      const avatarResponse = await fetch(
+        `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${id}&size=150x150&format=Png&isCircular=false`
       );
 
-      const data = await response.json();
+      const avatarData = await avatarResponse.json();
 
-      if (data.data?.[0]?.imageUrl) {
-        setAvatar(data.data[0].imageUrl);
+      if (avatarData?.data?.[0]?.imageUrl) {
+        setAvatar(avatarData.data[0].imageUrl);
+      } else {
+        setAvatar("");
+      }
+
+      try {
+        const userResponse = await fetch(
+          `https://users.roblox.com/v1/users/${id}`
+        );
+
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setUsername(userData?.name || "");
+        } else {
+          setUsername("");
+        }
+      } catch {
+        setUsername("");
       }
     } catch {
       setAvatar("");
-    } finally {
-      setLoadingAvatar(false);
+      setUsername("");
     }
+
+    setLoadingAvatar(false);
   }
 
   function openSend() {
+    if (!selected) return;
+
     setSendOpen(true);
   }
 
-  function closeSend() {
-    setSendOpen(false);
-  }
-
   return (
-    <div className="site">
+    <div className="page">
+      <style>{`
+        * {
+          box-sizing: border-box;
+        }
+
+        html,
+        body,
+        #root {
+          margin: 0;
+          min-height: 100%;
+          width: 100%;
+        }
+
+        body {
+          font-family:
+            Inter,
+            ui-sans-serif,
+            system-ui,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
+          background: #f5f5f5;
+          color: #191919;
+        }
+
+        button,
+        input {
+          font: inherit;
+        }
+
+        .page {
+          min-height: 100vh;
+          background:
+            radial-gradient(
+              circle at 50% -100px,
+              rgba(255,255,255,1),
+              rgba(245,245,245,0.92) 420px,
+              #f3f3f3 800px
+            );
+          padding-bottom: 110px;
+        }
+
+        .topbar {
+          height: 68px;
+          width: 100%;
+          background: #ffffff;
+          border-bottom: 1px solid #e5e5e5;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 34px;
+          position: sticky;
+          top: 0;
+          z-index: 20;
+        }
+
+        .brand {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 20px;
+          font-weight: 800;
+          letter-spacing: -0.5px;
+        }
+
+        .brand-icon {
+          width: 31px;
+          height: 31px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .brand-icon .robux-icon {
+          width: 30px;
+          height: 30px;
+        }
+
+        .send-top {
+          border: 0;
+          background: #191919;
+          color: white;
+          height: 40px;
+          padding: 0 21px;
+          border-radius: 9px;
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+          transition:
+            transform 0.12s ease,
+            background 0.12s ease;
+        }
+
+        .send-top:hover {
+          background: #303030;
+          transform: translateY(-1px);
+        }
+
+        .send-top:active {
+          transform: translateY(0);
+        }
+
+        .content {
+          width: min(780px, calc(100% - 32px));
+          margin: 0 auto;
+          padding-top: 48px;
+        }
+
+        .hero {
+          text-align: center;
+          margin-bottom: 30px;
+        }
+
+        .hero h1 {
+          margin: 0;
+          font-size: 31px;
+          line-height: 1.15;
+          letter-spacing: -1.1px;
+          font-weight: 800;
+        }
+
+        .hero p {
+          margin: 10px 0 0;
+          color: #6d6d6d;
+          font-size: 14px;
+        }
+
+        .section-title {
+          font-size: 18px;
+          font-weight: 800;
+          margin: 0 0 14px;
+        }
+
+        .cards {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .card {
+          width: 100%;
+          min-height: 94px;
+          background: white;
+          border: 1px solid #e1e1e1;
+          border-radius: 13px;
+          display: flex;
+          align-items: center;
+          padding: 15px 19px;
+          cursor: pointer;
+          transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease,
+            transform 0.15s ease;
+        }
+
+        .card:hover {
+          border-color: #c9c9c9;
+          box-shadow: 0 4px 18px rgba(0,0,0,0.055);
+          transform: translateY(-1px);
+        }
+
+        .card.selected {
+          border-color: #191919;
+          box-shadow: 0 0 0 1px #191919;
+        }
+
+        .icon-box {
+          width: 58px;
+          height: 58px;
+          border-radius: 11px;
+          background: #f3f3f3;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          margin-right: 17px;
+        }
+
+        .robux-icon {
+          width: 43px;
+          height: 43px;
+          object-fit: contain;
+          display: block;
+        }
+
+        .robux-icon.small {
+          width: 29px;
+          height: 29px;
+        }
+
+        .package-info {
+          min-width: 0;
+          flex: 1;
+        }
+
+        .package-amount {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+          font-size: 20px;
+          line-height: 1;
+          font-weight: 800;
+        }
+
+        .package-old {
+          color: #a0a0a0;
+          font-size: 14px;
+          font-weight: 500;
+          text-decoration: line-through;
+        }
+
+        .package-label {
+          margin-top: 7px;
+          color: #777;
+          font-size: 12px;
+        }
+
+        .package-price {
+          font-size: 16px;
+          font-weight: 800;
+          white-space: nowrap;
+          margin-left: 18px;
+        }
+
+        .check {
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          border: 2px solid #d2d2d2;
+          margin-left: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .card.selected .check {
+          border-color: #191919;
+          background: #191919;
+        }
+
+        .check-inner {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: white;
+        }
+
+        .normal-section {
+          margin-top: 34px;
+        }
+
+        .selection-bar {
+          position: fixed;
+          left: 50%;
+          bottom: 25px;
+          transform: translateX(-50%);
+          width: min(600px, calc(100% - 28px));
+          min-height: 65px;
+          background: #191919;
+          border-radius: 13px;
+          padding: 10px 12px 10px 18px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 15px;
+          box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+          z-index: 30;
+        }
+
+        .selection-text {
+          color: white;
+          min-width: 0;
+        }
+
+        .selection-text strong {
+          display: block;
+          font-size: 13px;
+        }
+
+        .selection-text span {
+          display: block;
+          color: #bdbdbd;
+          font-size: 11px;
+          margin-top: 3px;
+        }
+
+        .selection-send {
+          border: 0;
+          border-radius: 9px;
+          background: white;
+          color: #191919;
+          padding: 10px 20px;
+          font-size: 13px;
+          font-weight: 800;
+          cursor: pointer;
+          flex-shrink: 0;
+        }
+
+        .selection-send:hover {
+          background: #eeeeee;
+        }
+
+        .frh {
+          position: fixed;
+          left: 11px;
+          bottom: 7px;
+          color: #a6a6a6;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 1.5px;
+          user-select: none;
+          z-index: 50;
+        }
+
+        .overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.48);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          z-index: 100;
+          backdrop-filter: blur(3px);
+        }
+
+        .modal {
+          width: min(450px, 100%);
+          background: white;
+          border-radius: 16px;
+          box-shadow: 0 25px 80px rgba(0,0,0,0.25);
+          overflow: hidden;
+        }
+
+        .modal-header {
+          padding: 21px 23px;
+          border-bottom: 1px solid #eeeeee;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .modal-title {
+          font-size: 18px;
+          font-weight: 800;
+        }
+
+        .close {
+          border: 0;
+          background: transparent;
+          color: #777;
+          font-size: 24px;
+          width: 32px;
+          height: 32px;
+          cursor: pointer;
+          border-radius: 7px;
+        }
+
+        .close:hover {
+          background: #f1f1f1;
+          color: #222;
+        }
+
+        .modal-body {
+          padding: 23px;
+        }
+
+        .selected-preview {
+          display: flex;
+          align-items: center;
+          gap: 13px;
+          background: #f6f6f6;
+          border-radius: 11px;
+          padding: 12px;
+          margin-bottom: 22px;
+        }
+
+        .selected-preview .robux-icon {
+          width: 36px;
+          height: 36px;
+        }
+
+        .preview-info strong {
+          display: block;
+          font-size: 15px;
+        }
+
+        .preview-info span {
+          color: #777;
+          font-size: 12px;
+        }
+
+        .field-label {
+          display: block;
+          font-size: 12px;
+          font-weight: 700;
+          margin-bottom: 7px;
+        }
+
+        .input-row {
+          display: flex;
+          gap: 8px;
+        }
+
+        .user-input {
+          flex: 1;
+          min-width: 0;
+          height: 43px;
+          border: 1px solid #d8d8d8;
+          border-radius: 8px;
+          padding: 0 12px;
+          outline: none;
+          font-size: 14px;
+        }
+
+        .user-input:focus {
+          border-color: #777;
+        }
+
+        .find-button {
+          height: 43px;
+          border: 0;
+          background: #191919;
+          color: white;
+          padding: 0 16px;
+          border-radius: 8px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        .avatar-result {
+          margin-top: 17px;
+          border: 1px solid #e2e2e2;
+          border-radius: 11px;
+          padding: 11px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .avatar {
+          width: 54px;
+          height: 54px;
+          border-radius: 9px;
+          object-fit: cover;
+          background: #eeeeee;
+        }
+
+        .avatar-name {
+          font-weight: 800;
+          font-size: 14px;
+        }
+
+        .avatar-id {
+          color: #888;
+          font-size: 11px;
+          margin-top: 3px;
+        }
+
+        .modal-footer {
+          margin-top: 22px;
+        }
+
+        .confirm-button {
+          width: 100%;
+          height: 46px;
+          border: 0;
+          border-radius: 9px;
+          background: #191919;
+          color: white;
+          font-weight: 800;
+          cursor: pointer;
+        }
+
+        .confirm-button:hover {
+          background: #303030;
+        }
+
+        .confirm-button:disabled {
+          opacity: 0.45;
+          cursor: not-allowed;
+        }
+
+        .note {
+          color: #999;
+          font-size: 10px;
+          line-height: 1.45;
+          text-align: center;
+          margin: 11px 15px 0;
+        }
+
+        @media (max-width: 600px) {
+          .topbar {
+            padding: 0 16px;
+          }
+
+          .content {
+            width: min(100% - 20px, 780px);
+            padding-top: 32px;
+          }
+
+          .hero h1 {
+            font-size: 25px;
+          }
+
+          .card {
+            padding: 13px;
+          }
+
+          .icon-box {
+            width: 50px;
+            height: 50px;
+            margin-right: 12px;
+          }
+
+          .icon-box .robux-icon {
+            width: 36px;
+            height: 36px;
+          }
+
+          .package-amount {
+            font-size: 17px;
+          }
+
+          .package-price {
+            font-size: 14px;
+            margin-left: 8px;
+          }
+
+          .check {
+            margin-left: 8px;
+          }
+        }
+      `}</style>
+
       <header className="topbar">
         <div className="brand">
-          <div className="brand-logo">
+          <div className="brand-icon">
             <RobuxIcon small />
           </div>
-
-          <div className="brand-text">
-            <strong>Robux Center</strong>
-            <span>Currency Store</span>
-          </div>
+          <span>Robux</span>
         </div>
 
-        <button className="send-button" onClick={openSend}>
+        <button className="send-top" onClick={openSend}>
           Send
-          <span>→</span>
         </button>
       </header>
 
       <main className="content">
         <section className="hero">
           <h1>Enjoy up to 25% more Robux</h1>
-          <p>Get more Robux with selected packages.</p>
+          <p>Choose a package below.</p>
         </section>
 
-        <section className="cards">
-          {PROMO_PACKAGES.map((item) => (
-            <button
-              key={item.robux}
-              className={`package-card ${
-                selected === item.robux ? "active" : ""
-              }`}
-              onClick={() => setSelected(item.robux)}
-            >
-              <div className="package-left">
-                <div className="icon-box">
-                  <RobuxIcon />
-                </div>
+        <section>
+          <h2 className="section-title">Robux packages</h2>
 
-                <div className="package-info">
-                  <strong>{item.robux}</strong>
+          <div className="cards">
+            {PROMO_PACKAGES.map((pkg) => {
+              const isSelected = selected?.robux === pkg.robux;
 
-                  <div className="package-sub">
-                    <span className="old-value">{item.old}</span>
-                    <span className="robux-label">Robux</span>
+              return (
+                <div
+                  key={pkg.robux}
+                  className={`card ${isSelected ? "selected" : ""}`}
+                  onClick={() => setSelected(pkg)}
+                >
+                  <div className="icon-box">
+                    <RobuxIcon />
+                  </div>
+
+                  <div className="package-info">
+                    <div className="package-amount">
+                      <span>{pkg.robux}</span>
+                      <span className="package-old">{pkg.old}</span>
+                    </div>
+
+                    <div className="package-label">
+                      Robux package
+                    </div>
+                  </div>
+
+                  <div className="package-price">
+                    {pkg.price}
+                  </div>
+
+                  <div className="check">
+                    {isSelected && <div className="check-inner" />}
                   </div>
                 </div>
-              </div>
-
-              <div className="price">{item.price}</div>
-
-              {selected === item.robux && (
-                <div className="selected-check">✓</div>
-              )}
-            </button>
-          ))}
+              );
+            })}
+          </div>
         </section>
 
         <section className="normal-section">
-          <h2>Robux packages</h2>
+          <h2 className="section-title">More packages</h2>
 
-          {NORMAL_PACKAGES.map((item) => (
-            <button
-              key={item.robux}
-              className={`normal-card ${
-                selected === item.robux ? "active" : ""
-              }`}
-              onClick={() => setSelected(item.robux)}
-            >
-              <div className="normal-left">
-                <div className="icon-box normal-icon">
-                  <RobuxIcon />
-                </div>
+          <div className="cards">
+            {NORMAL_PACKAGES.map((pkg) => {
+              const isSelected = selected?.robux === pkg.robux;
 
-                <div>
-                  <strong>{item.robux}</strong>
+              return (
+                <div
+                  key={pkg.robux}
+                  className={`card ${isSelected ? "selected" : ""}`}
+                  onClick={() => setSelected(pkg)}
+                >
+                  <div className="icon-box">
+                    <RobuxIcon />
+                  </div>
 
-                  <div className="normal-sub">
-                    <span className="old-value">{item.old}</span>
-                    <span>Robux</span>
+                  <div className="package-info">
+                    <div className="package-amount">
+                      <span>{pkg.robux}</span>
+                      <span className="package-old">{pkg.old}</span>
+                    </div>
+
+                    <div className="package-label">
+                      Robux package
+                    </div>
+                  </div>
+
+                  <div className="package-price">
+                    {pkg.price}
+                  </div>
+
+                  <div className="check">
+                    {isSelected && <div className="check-inner" />}
                   </div>
                 </div>
-              </div>
-
-              <strong className="normal-price">{item.price}</strong>
-            </button>
-          ))}
-        </section>
-
-        {selected && (
-          <div className="selection-bar">
-            <div>
-              <span>Selected package</span>
-              <strong>{selected} Robux</strong>
-            </div>
-
-            <button onClick={openSend}>Continue →</button>
+              );
+            })}
           </div>
-        )}
+        </section>
+      </main>
 
-        {sendOpen && (
-          <div className="overlay">
-            <div className="send-panel">
-              <button className="close" onClick={closeSend}>
+      {selected && (
+        <div className="selection-bar">
+          <div className="selection-text">
+            <strong>{selected.robux} Robux selected</strong>
+            <span>{selected.price}</span>
+          </div>
+
+          <button className="selection-send" onClick={openSend}>
+            Send
+          </button>
+        </div>
+      )}
+
+      <div className="frh">FRH</div>
+
+      {sendOpen && selected && (
+        <div className="overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <div className="modal-title">Send Robux</div>
+
+              <button
+                className="close"
+                onClick={() => setSendOpen(false)}
+                aria-label="Close"
+              >
                 ×
               </button>
+            </div>
 
-              <div className="send-title">
-                <div className="send-icon">
-                  <RobuxIcon />
-                </div>
+            <div className="modal-body">
+              <div className="selected-preview">
+                <RobuxIcon />
 
-                <div>
-                  <h2>Send Robux</h2>
-                  <p>Choose a recipient for your selected package.</p>
+                <div className="preview-info">
+                  <strong>{selected.robux} Robux</strong>
+                  <span>{selected.price}</span>
                 </div>
               </div>
 
-              <div className="chosen">
-                <span>Selected package</span>
-                <strong>
-                  {selected ? `${selected} Robux` : "None selected"}
-                </strong>
-              </div>
+              <label className="field-label">
+                Roblox User ID
+              </label>
 
-              <label>Roblox User ID</label>
-
-              <div className="user-input">
+              <div className="input-row">
                 <input
+                  className="user-input"
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      findAvatar();
+                    }
+                  }}
                   placeholder="Enter User ID"
+                  inputMode="numeric"
                 />
 
                 <button
@@ -226,651 +804,42 @@ function Home() {
               </div>
 
               {avatar && (
-                <div className="user-preview">
-                  <img src={avatar} alt="Avatar" />
+                <div className="avatar-result">
+                  <img
+                    className="avatar"
+                    src={avatar}
+                    alt=""
+                  />
 
                   <div>
-                    <span>Recipient</span>
-                    <strong>User {userId}</strong>
-                  </div>
+                    <div className="avatar-name">
+                      {username || "Roblox user"}
+                    </div>
 
-                  <b>✓</b>
+                    <div className="avatar-id">
+                      ID: {userId}
+                    </div>
+                  </div>
                 </div>
               )}
 
-              <button
-                className="confirm"
-                disabled={!selected || !userId}
-                onClick={closeSend}
-              >
-                Send {selected || "Robux"}
-                <span>→</span>
-              </button>
+              <div className="modal-footer">
+                <button
+                  className="confirm-button"
+                  disabled={!avatar}
+                  onClick={() => setSendOpen(false)}
+                >
+                  Confirm
+                </button>
 
-              <p className="small-note">
-                No account credentials are requested.
-              </p>
+                <div className="note">
+                  FRH — Fake Robux Hub. No account credentials are requested.
+                </div>
+              </div>
             </div>
           </div>
-        )}
-      </main>
-
-      <div className="frh">FRH</div>
-
-      <style>{`
-        * {
-          box-sizing: border-box;
-        }
-
-        body {
-          margin: 0;
-          background: #0f1114;
-          color: #f4f5f6;
-          font-family: Arial, Helvetica, sans-serif;
-        }
-
-        button,
-        input {
-          font: inherit;
-        }
-
-        button {
-          -webkit-tap-highlight-color: transparent;
-        }
-
-        .site {
-          min-height: 100vh;
-          background:
-            radial-gradient(
-              circle at 50% -15%,
-              #26313d 0%,
-              #15191e 38%,
-              #0f1114 72%
-            );
-          position: relative;
-          padding-bottom: 55px;
-        }
-
-        .topbar {
-          height: 68px;
-          border-bottom: 1px solid #2b3037;
-          background: rgba(13, 15, 18, 0.94);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 30px;
-          position: sticky;
-          top: 0;
-          z-index: 10;
-          backdrop-filter: blur(12px);
-        }
-
-        .brand {
-          display: flex;
-          align-items: center;
-          gap: 11px;
-        }
-
-        .brand-logo {
-          width: 36px;
-          height: 36px;
-          border-radius: 8px;
-          background: #00a2ff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-        }
-
-        .robux-icon {
-          width: 45px;
-          height: 45px;
-          display: block;
-        }
-
-        .robux-icon.small {
-          width: 29px;
-          height: 29px;
-        }
-
-        .brand-text {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-        }
-
-        .brand-text strong {
-          font-size: 15px;
-        }
-
-        .brand-text span {
-          font-size: 10px;
-          color: #707781;
-        }
-
-        .send-button {
-          height: 40px;
-          padding: 0 17px;
-          border: 0;
-          border-radius: 7px;
-          background: #00a2ff;
-          color: white;
-          font-size: 13px;
-          font-weight: 800;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          transition: 0.15s;
-        }
-
-        .send-button:hover {
-          filter: brightness(1.08);
-          transform: translateY(-1px);
-        }
-
-        .send-button span {
-          font-size: 18px;
-        }
-
-        .content {
-          width: min(760px, calc(100% - 28px));
-          margin: 0 auto;
-          padding-top: 55px;
-        }
-
-        .hero {
-          text-align: center;
-          margin-bottom: 32px;
-        }
-
-        .hero h1 {
-          margin: 0;
-          font-size: clamp(25px, 4vw, 34px);
-          letter-spacing: -0.7px;
-        }
-
-        .hero p {
-          color: #858d97;
-          font-size: 13px;
-          margin-top: 9px;
-        }
-
-        .cards {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .package-card {
-          width: 100%;
-          min-height: 92px;
-          padding: 16px 20px;
-          border-radius: 12px;
-          border: 1px solid #30353d;
-          background: linear-gradient(145deg, #1c2025, #15181c);
-          color: white;
-          cursor: pointer;
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          transition: 0.16s;
-          text-align: left;
-        }
-
-        .package-card:hover {
-          border-color: #4c5661;
-          transform: translateY(-2px);
-          background: #1d2228;
-        }
-
-        .package-card.active {
-          border-color: #00a2ff;
-          box-shadow:
-            0 0 0 1px #00a2ff,
-            0 10px 35px rgba(0, 162, 255, 0.13);
-        }
-
-        .package-left {
-          display: flex;
-          align-items: center;
-          gap: 15px;
-        }
-
-        .icon-box {
-          width: 54px;
-          height: 54px;
-          flex-shrink: 0;
-          border-radius: 11px;
-          background: #111419;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .package-info {
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
-        }
-
-        .package-info strong {
-          font-size: 22px;
-          letter-spacing: -0.4px;
-        }
-
-        .package-sub {
-          display: flex;
-          align-items: center;
-          gap: 7px;
-        }
-
-        .old-value {
-          color: #777f89;
-          text-decoration: line-through;
-          font-size: 12px;
-        }
-
-        .robux-label {
-          color: #969da6;
-          font-size: 11px;
-        }
-
-        .price {
-          font-size: 14px;
-          font-weight: 800;
-          color: #e8eaed;
-          margin-right: 22px;
-        }
-
-        .selected-check {
-          position: absolute;
-          top: 50%;
-          right: 10px;
-          transform: translateY(-50%);
-          width: 21px;
-          height: 21px;
-          border-radius: 50%;
-          background: #00a2ff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 12px;
-        }
-
-        .normal-section {
-          margin-top: 38px;
-        }
-
-        .normal-section h2 {
-          font-size: 16px;
-          margin: 0 0 13px;
-        }
-
-        .normal-card {
-          width: 100%;
-          min-height: 82px;
-          padding: 15px 18px;
-          border: 1px solid #30353d;
-          border-radius: 11px;
-          background: #191c20;
-          color: white;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          cursor: pointer;
-          transition: 0.15s;
-        }
-
-        .normal-card:hover {
-          border-color: #4c5661;
-        }
-
-        .normal-card.active {
-          border-color: #00a2ff;
-          box-shadow: 0 0 0 1px #00a2ff;
-        }
-
-        .normal-left {
-          display: flex;
-          align-items: center;
-          gap: 13px;
-        }
-
-        .normal-icon {
-          width: 48px;
-          height: 48px;
-        }
-
-        .normal-left strong {
-          font-size: 17px;
-        }
-
-        .normal-sub {
-          display: flex;
-          gap: 6px;
-          color: #707781;
-          font-size: 11px;
-          margin-top: 4px;
-        }
-
-        .normal-price {
-          font-size: 14px;
-        }
-
-        .selection-bar {
-          margin-top: 20px;
-          padding: 13px 15px;
-          border: 1px solid #30353d;
-          border-radius: 10px;
-          background: #191c20;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 15px;
-        }
-
-        .selection-bar div {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .selection-bar span {
-          color: #707781;
-          font-size: 10px;
-          text-transform: uppercase;
-        }
-
-        .selection-bar strong {
-          font-size: 14px;
-        }
-
-        .selection-bar button {
-          border: 0;
-          border-radius: 7px;
-          background: #00a2ff;
-          color: white;
-          padding: 10px 15px;
-          font-weight: 800;
-          cursor: pointer;
-        }
-
-        .overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 100;
-          background: rgba(0, 0, 0, 0.68);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 18px;
-          backdrop-filter: blur(7px);
-        }
-
-        .send-panel {
-          width: min(450px, 100%);
-          padding: 29px;
-          border-radius: 14px;
-          border: 1px solid #353b43;
-          background: #191c20;
-          box-shadow: 0 30px 100px rgba(0, 0, 0, 0.6);
-          position: relative;
-        }
-
-        .close {
-          position: absolute;
-          top: 15px;
-          right: 17px;
-          border: 0;
-          background: transparent;
-          color: #747c86;
-          font-size: 25px;
-          cursor: pointer;
-        }
-
-        .send-title {
-          display: flex;
-          gap: 13px;
-          align-items: center;
-          margin-bottom: 25px;
-        }
-
-        .send-icon {
-          width: 45px;
-          height: 45px;
-          border-radius: 10px;
-          background: #111419;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        .send-icon .robux-icon {
-          width: 35px;
-          height: 35px;
-        }
-
-        .send-title h2 {
-          margin: 0;
-          font-size: 21px;
-        }
-
-        .send-title p {
-          margin: 4px 0 0;
-          color: #7d858f;
-          font-size: 11px;
-        }
-
-        .chosen {
-          padding: 13px;
-          border-radius: 8px;
-          border: 1px solid #2e343b;
-          background: #121519;
-          margin-bottom: 20px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .chosen span {
-          color: #707781;
-          font-size: 11px;
-        }
-
-        .chosen strong {
-          color: #00a2ff;
-          font-size: 14px;
-        }
-
-        label {
-          display: block;
-          color: #d7dbe0;
-          font-size: 12px;
-          font-weight: 700;
-          margin-bottom: 7px;
-        }
-
-        .user-input {
-          height: 48px;
-          border: 1px solid #343a42;
-          border-radius: 8px;
-          background: #101216;
-          display: flex;
-          overflow: hidden;
-        }
-
-        .user-input:focus-within {
-          border-color: #00a2ff;
-        }
-
-        .user-input input {
-          flex: 1;
-          min-width: 0;
-          border: 0;
-          outline: 0;
-          background: transparent;
-          color: white;
-          padding: 0 13px;
-        }
-
-        .find-button {
-          margin: 7px;
-          border: 0;
-          border-radius: 6px;
-          background: #292f36;
-          color: white;
-          padding: 0 12px;
-          cursor: pointer;
-          font-size: 11px;
-          font-weight: 700;
-        }
-
-        .find-button:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-
-        .user-preview {
-          margin-top: 12px;
-          padding: 10px;
-          border-radius: 8px;
-          background: #121519;
-          border: 1px solid #2d333a;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .user-preview img {
-          width: 44px;
-          height: 44px;
-          object-fit: cover;
-          border-radius: 8px;
-        }
-
-        .user-preview div {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 3px;
-        }
-
-        .user-preview span {
-          color: #707781;
-          font-size: 10px;
-        }
-
-        .user-preview strong {
-          font-size: 12px;
-        }
-
-        .user-preview b {
-          color: #25d47b;
-        }
-
-        .confirm {
-          width: 100%;
-          height: 49px;
-          margin-top: 17px;
-          border: 0;
-          border-radius: 8px;
-          background: #00a2ff;
-          color: white;
-          font-weight: 800;
-          cursor: pointer;
-        }
-
-        .confirm:disabled {
-          opacity: 0.35;
-          cursor: not-allowed;
-        }
-
-        .confirm span {
-          margin-left: 7px;
-          font-size: 17px;
-        }
-
-        .small-note {
-          text-align: center;
-          color: #555d67;
-          font-size: 9px;
-          margin: 13px 0 0;
-        }
-
-        .frh {
-          position: fixed;
-          left: 13px;
-          bottom: 9px;
-          color: #4b5159;
-          font-size: 10px;
-          letter-spacing: 1px;
-          user-select: none;
-          z-index: 20;
-        }
-
-        @media (max-width: 600px) {
-          .topbar {
-            padding: 0 15px;
-          }
-
-          .content {
-            padding-top: 35px;
-          }
-
-          .package-card {
-            min-height: 82px;
-            padding: 13px 14px;
-          }
-
-          .package-info strong {
-            font-size: 19px;
-          }
-
-          .icon-box {
-            width: 47px;
-            height: 47px;
-          }
-
-          .robux-icon {
-            width: 39px;
-            height: 39px;
-          }
-
-          .price {
-            font-size: 12px;
-            margin-right: 18px;
-          }
-
-          .send-panel {
-            padding: 24px 19px;
-          }
-        }
-
-        @media (max-width: 420px) {
-          .brand-text span {
-            display: none;
-          }
-
-          .package-left {
-            gap: 10px;
-          }
-
-          .price {
-            font-size: 11px;
-          }
-
-          .selection-bar {
-            flex-direction: column;
-            align-items: stretch;
-          }
-
-          .selection-bar button {
-            width: 100%;
-          }
-        }
-      `}</style>
+        </div>
+      )}
     </div>
   );
 }
