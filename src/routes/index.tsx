@@ -5,6 +5,9 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
+const ROBUX_ICON =
+  "https://tr.rbxcdn.com/30DAY-IMAGE/420b7f7c8f1c4c4b8f1c5a9b2d5d3c5d/420/420/AvatarHeadshot/Png/noFilter";
+
 const PROMO_PACKAGES = [
   { robux: "24,000", old: "22,500", price: "1 149,99 zł" },
   { robux: "11,000", old: "10,000", price: "599,99 zł" },
@@ -16,6 +19,16 @@ const PROMO_PACKAGES = [
 const NORMAL_PACKAGES = [
   { robux: "1,500", old: "1,200", price: "79,99 zł" },
 ];
+
+function RobuxIcon() {
+  return (
+    <img
+      className="robux-icon"
+      src={ROBUX_ICON}
+      alt="Robux"
+    />
+  );
+}
 
 function Home() {
   const [selected, setSelected] = useState<string | null>(null);
@@ -49,23 +62,13 @@ function Home() {
     }
   }
 
-  function selectPackage(robux: string) {
-    setSelected(robux);
-  }
-
-  function openSend() {
-    setSendOpen(true);
-  }
-
-  function closeSend() {
-    setSendOpen(false);
-  }
-
   return (
     <div className="site">
       <header className="topbar">
         <div className="brand">
-          <div className="brand-logo">R$</div>
+          <div className="brand-logo">
+            <RobuxIcon />
+          </div>
 
           <div className="brand-text">
             <strong>Robux Center</strong>
@@ -73,7 +76,7 @@ function Home() {
           </div>
         </div>
 
-        <button className="send-button" onClick={openSend}>
+        <button className="send-button" onClick={() => setSendOpen(true)}>
           Send
           <span>→</span>
         </button>
@@ -85,70 +88,65 @@ function Home() {
           <p>Get more Robux with selected packages.</p>
         </section>
 
-        <section className="package-section">
-          <div className="cards">
-            {PROMO_PACKAGES.map((item) => (
-              <button
-                key={item.robux}
-                className={`package-card ${
-                  selected === item.robux ? "active" : ""
-                }`}
-                onClick={() => selectPackage(item.robux)}
-              >
-                <div className="package-left">
-                  <div className="robux-icon">R$</div>
+        <section className="cards">
+          {PROMO_PACKAGES.map((item) => (
+            <button
+              key={item.robux}
+              className={`package-card ${
+                selected === item.robux ? "active" : ""
+              }`}
+              onClick={() => setSelected(item.robux)}
+            >
+              <div className="package-left">
+                <RobuxIcon />
 
-                  <div className="package-info">
-                    <strong>{item.robux}</strong>
+                <div className="package-info">
+                  <strong>{item.robux}</strong>
 
-                    <div className="package-sub">
-                      <span className="old-value">{item.old}</span>
-                      <span className="robux-label">Robux</span>
-                    </div>
+                  <div className="package-sub">
+                    <span className="old-value">{item.old}</span>
+                    <span className="robux-label">Robux</span>
                   </div>
                 </div>
+              </div>
 
-                <div className="price">{item.price}</div>
+              <div className="price">{item.price}</div>
 
-                {selected === item.robux && (
-                  <div className="selected-check">✓</div>
-                )}
-              </button>
-            ))}
-          </div>
+              {selected === item.robux && (
+                <div className="selected-check">✓</div>
+              )}
+            </button>
+          ))}
         </section>
 
         <section className="normal-section">
           <h2>Robux packages</h2>
 
-          <div className="normal-card-row">
-            {NORMAL_PACKAGES.map((item) => (
-              <button
-                key={item.robux}
-                className={`normal-card ${
-                  selected === item.robux ? "active" : ""
-                }`}
-                onClick={() => selectPackage(item.robux)}
-              >
-                <div className="normal-left">
-                  <div className="robux-icon">R$</div>
+          <button
+            className={`normal-card ${
+              selected === NORMAL_PACKAGES[0].robux ? "active" : ""
+            }`}
+            onClick={() => setSelected(NORMAL_PACKAGES[0].robux)}
+          >
+            <div className="normal-left">
+              <RobuxIcon />
 
-                  <div>
-                    <strong>{item.robux}</strong>
+              <div>
+                <strong>{NORMAL_PACKAGES[0].robux}</strong>
 
-                    <div className="normal-sub">
-                      <span className="old-value">{item.old}</span>
-                      <span>Robux</span>
-                    </div>
-                  </div>
+                <div className="normal-sub">
+                  <span className="old-value">
+                    {NORMAL_PACKAGES[0].old}
+                  </span>
+                  <span>Robux</span>
                 </div>
+              </div>
+            </div>
 
-                <strong className="normal-price">
-                  {item.price}
-                </strong>
-              </button>
-            ))}
-          </div>
+            <strong className="normal-price">
+              {NORMAL_PACKAGES[0].price}
+            </strong>
+          </button>
         </section>
 
         {selected && (
@@ -158,7 +156,7 @@ function Home() {
               <strong>{selected} Robux</strong>
             </div>
 
-            <button onClick={openSend}>
+            <button onClick={() => setSendOpen(true)}>
               Continue →
             </button>
           </div>
@@ -167,16 +165,23 @@ function Home() {
         {sendOpen && (
           <div className="overlay">
             <div className="send-panel">
-              <button className="close" onClick={closeSend}>
+              <button
+                className="close"
+                onClick={() => setSendOpen(false)}
+              >
                 ×
               </button>
 
               <div className="send-title">
-                <div className="send-icon">→</div>
+                <div className="send-icon">
+                  <RobuxIcon />
+                </div>
 
                 <div>
                   <h2>Send Robux</h2>
-                  <p>Choose a recipient for your selected package.</p>
+                  <p>
+                    Choose a recipient for your selected package.
+                  </p>
                 </div>
               </div>
 
@@ -221,9 +226,7 @@ function Home() {
               <button
                 className="confirm"
                 disabled={!selected || !userId}
-                onClick={() => {
-                  closeSend();
-                }}
+                onClick={() => setSendOpen(false)}
               >
                 Send {selected || "Robux"}
                 <span>→</span>
@@ -301,9 +304,12 @@ function Home() {
           display: flex;
           justify-content: center;
           align-items: center;
-          font-size: 14px;
-          font-weight: 900;
-          box-shadow: 0 5px 20px rgba(0, 162, 255, 0.25);
+          overflow: hidden;
+        }
+
+        .brand-logo .robux-icon {
+          width: 27px;
+          height: 27px;
         }
 
         .brand-text {
@@ -334,12 +340,6 @@ function Home() {
           display: flex;
           align-items: center;
           gap: 8px;
-          transition: 0.15s;
-        }
-
-        .send-button:hover {
-          filter: brightness(1.08);
-          transform: translateY(-1px);
         }
 
         .send-button span {
@@ -368,10 +368,6 @@ function Home() {
           font-size: 13px;
           margin-top: 9px;
         }
-
-        /*
-          PAKIETY PIONOWO
-        */
 
         .cards {
           display: flex;
@@ -403,7 +399,6 @@ function Home() {
         .package-card:hover {
           border-color: #4c5661;
           transform: translateY(-2px);
-          background: #1d2228;
         }
 
         .package-card.active {
@@ -423,15 +418,7 @@ function Home() {
           width: 48px;
           height: 48px;
           flex-shrink: 0;
-          border-radius: 10px;
-          background: #00a2ff;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color: white;
-          font-size: 12px;
-          font-weight: 900;
-          box-shadow: 0 6px 20px rgba(0, 162, 255, 0.2);
+          object-fit: contain;
         }
 
         .package-info {
@@ -442,7 +429,6 @@ function Home() {
 
         .package-info strong {
           font-size: 22px;
-          letter-spacing: -0.4px;
         }
 
         .package-sub {
@@ -493,10 +479,6 @@ function Home() {
           margin: 0 0 13px;
         }
 
-        .normal-card-row {
-          width: 100%;
-        }
-
         .normal-card {
           width: 100%;
           min-height: 82px;
@@ -509,11 +491,6 @@ function Home() {
           align-items: center;
           justify-content: space-between;
           cursor: pointer;
-          transition: 0.15s;
-        }
-
-        .normal-card:hover {
-          border-color: #4c5661;
         }
 
         .normal-card.active {
@@ -525,6 +502,11 @@ function Home() {
           display: flex;
           align-items: center;
           gap: 13px;
+        }
+
+        .normal-left .robux-icon {
+          width: 43px;
+          height: 43px;
         }
 
         .normal-left strong {
@@ -552,7 +534,6 @@ function Home() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          gap: 15px;
         }
 
         .selection-bar div {
@@ -625,12 +606,15 @@ function Home() {
           width: 45px;
           height: 45px;
           border-radius: 10px;
-          background: #00a2ff;
+          background: #111419;
           display: flex;
           justify-content: center;
           align-items: center;
-          font-weight: 900;
-          font-size: 21px;
+        }
+
+        .send-icon .robux-icon {
+          width: 34px;
+          height: 34px;
         }
 
         .send-title h2 {
@@ -682,10 +666,6 @@ function Home() {
           overflow: hidden;
         }
 
-        .user-input:focus-within {
-          border-color: #00a2ff;
-        }
-
         .user-input input {
           flex: 1;
           min-width: 0;
@@ -706,11 +686,6 @@ function Home() {
           cursor: pointer;
           font-size: 11px;
           font-weight: 700;
-        }
-
-        .find-button:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
         }
 
         .user-preview {
@@ -827,10 +802,6 @@ function Home() {
         @media (max-width: 420px) {
           .brand-text span {
             display: none;
-          }
-
-          .package-card {
-            padding: 12px;
           }
 
           .package-left {
